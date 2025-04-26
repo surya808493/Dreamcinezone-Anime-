@@ -13,13 +13,9 @@ First Check our **Demo** bot -
 
 ## Special Thanks To
 
-### 🌴 [Sᴀʜɪᴅ ᴍᴀʟɪᴋ](https://github.com/Sahidmalik001)
-
 ### 🌴 [⌯ Ꭺɴᴏɴʏᴍᴏᴜꜱ | ×͜× |](https://t.me/BeingXAnonymous)
 
 ### 🌴 [Mʀ Rᴀᴀᴢᴢ](https://github.com/MrRaazz)
-
-### 🌴 [Hᴀʀsʜᴀʟ Pᴜʀᴏʜɪᴛ Eᴅɪᴛs](https://github.com/HarshalPurohitEdits)
 
 ### 🌴 [Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ](https://t.me/Deendayal_Support_Group)
 
