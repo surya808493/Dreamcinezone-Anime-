@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/MrRaazz/Pics/blob/main/deenu.jpg"> </p>
+<p align="center"> <img src="https://github.com/MrRaazz/Pics/blob/main/dreamxbotz.jpg"> </p>
 <h1 align="center"> 𝑫𝒆𝒆𝒏𝒅𝒂𝒚𝒂𝒍_𝒅𝒉𝒂𝒌𝒂𝒅 </h1>
 
 **OWNER**
