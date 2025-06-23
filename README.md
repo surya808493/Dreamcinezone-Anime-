@@ -9,13 +9,14 @@
 
 First Check our **Demo** bot -
 
+
+[![Click Here](https://img.shields.io/badge/Demo%20Bot-Click%20Here-blue?style=flat&logo=telegram&labelColor=white&link=https://t.me/Princess_V4_bot)](https://t.me/Princess_V4_bot)
+
 # New Version Released - V1.2
 - Group Owners Can Manage Groups From Bot PM.
 - Added /reload Command 
 - Now Owner Can Reset All Connect Groups Settings 
 - 3 Verify
-
-[![Click Here](https://img.shields.io/badge/Demo%20Bot-Click%20Here-blue?style=flat&logo=telegram&labelColor=white&link=https://t.me/Princess_V4_bot)](https://t.me/Princess_V4_bot)
 
 ## Special Thanks To
 
