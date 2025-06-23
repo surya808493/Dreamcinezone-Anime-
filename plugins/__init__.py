@@ -5,10 +5,8 @@ from asyncio import sleep
 from datetime import datetime
 from database.users_chats_db import db
 from info import LOG_CHANNEL, URL
-
 import aiohttp
 import asyncio
-
 import logging
 
 logging.basicConfig(level=logging.INFO)

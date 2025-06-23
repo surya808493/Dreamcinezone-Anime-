@@ -74,7 +74,7 @@ class dreamcinezoneXBot(Client):
                 yield message
                 current += 1
       
-dreamcinezoneBot = dreamcinezoneXBot()
+dreamxbotz = dreamcinezoneXBot()
 
 multi_clients = {}
 work_loads = {}

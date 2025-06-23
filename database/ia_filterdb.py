@@ -3,21 +3,28 @@ from struct import pack
 import re
 import base64
 from pyrogram.file_id import FileId
+from typing import Dict, List
+from collections import defaultdict
 from pymongo.errors import DuplicateKeyError
 from umongo import Instance, Document, fields
 from motor.motor_asyncio import AsyncIOMotorClient
-from marshmallow.exceptions import ValidationError
-from info import CAPTION_LANGUAGES, DATABASE_URI, DATABASE_URI2, DATABASE_NAME, COLLECTION_NAME, USE_CAPTION_FILTER, MAX_B_TN, DREAMCINEZONE_MOVIE_UPDATE_CHANNEL, OWNERID
-from utils import get_settings, save_group_settings, temp, get_status
-from database.users_chats_db import add_name
-from .Imdbposter import get_movie_details, fetch_image
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
+from marshmallow import ValidationError
+from info import *
+from utils import get_settings, save_group_settings
+from datetime import datetime, timedelta
+import logging
+logging.basicConfig(
+    level=logging.DEBUG,  # You can also use logging.INFO for less verbosity
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 #---------------------------------------------------------
-# Some basic variables needed
-tempDict = {'indexDB': DATABASE_URI}
+
+# Global cache for DB size
+_db_stats_cache = {
+    "timestamp": None,  
+    "primary_size": 0   
+}
 
 # Primary DB
 client = AsyncIOMotorClient(DATABASE_URI)
@@ -30,7 +37,6 @@ db2 = client2[DATABASE_NAME]
 instance2 = Instance.from_db(db2)
 
 
-# Primary DB Model
 @instance.register
 class Media(Document):
     file_id = fields.StrField(attribute='_id')
@@ -40,7 +46,6 @@ class Media(Document):
     file_type = fields.StrField(allow_none=True)
     mime_type = fields.StrField(allow_none=True)
     caption = fields.StrField(allow_none=True)
-
     class Meta:
         indexes = ('$file_name', )
         collection_name = COLLECTION_NAME
@@ -54,54 +59,74 @@ class Media2(Document):
     file_type = fields.StrField(allow_none=True)
     mime_type = fields.StrField(allow_none=True)
     caption = fields.StrField(allow_none=True)
-
     class Meta:
         indexes = ('$file_name', )
         collection_name = COLLECTION_NAME
 
-async def choose_mediaDB():
-    """This Function chooses which database to use based on the value of indexDB key in the dict tempDict."""
-    global saveMedia
-    if tempDict['indexDB'] == DATABASE_URI:
-        logger.info("Using first db (Media)")
-        saveMedia = Media
-    else:
-        logger.info("Using second db (Media2)")
-        saveMedia = Media2
-
-async def save_file(bot, media):
-  """Save file in database"""
-  global saveMedia
-  file_id, file_ref = unpack_new_file_id(media.file_id)
-  file_name = re.sub(r"(_|\-|\.|\+)", " ", str(media.file_name))
-  try:
-    if saveMedia == Media2: 
-        if await Media.count_documents({'file_id': file_id}, limit=1):
+async def check_db_size(db):
+    try:
+        now = datetime.utcnow()
+        if _db_stats_cache["timestamp"] is None or (now - _db_stats_cache["timestamp"] > timedelta(minutes=10)):
+            pass  
+        # If size is near the threshold (432MB), force a refresh
+        elif _db_stats_cache["primary_size"] >= (512 - 80):  # 432MB 
+            pass  
+        else:
+            print(f"📊 DB Size (cached): {_db_stats_cache['primary_size']:.2f} MB")
+            return _db_stats_cache["primary_size"]
+        stats = await db.command("dbstats")
+        db_size = stats["dataSize"]
+        db_size_mb = db_size / (1024 * 1024)  # Convert to MB
+        _db_stats_cache["primary_size"] = db_size_mb
+        _db_stats_cache["timestamp"] = now
+        print(f"📊 DB Size (updated): {db_size_mb:.2f} MB")
+        return db_size_mb
+    except Exception as e:
+        print(f"Error Checking Database Size: {e}")
+        return 0
+    
+async def save_file(media):
+    """Save file in database"""
+    file_id, file_ref = unpack_new_file_id(media.file_id)
+    file_name = re.sub(r"@\w+|(_|\-|\.|\+|\#|\$|%|\^|&|\*|\(|\)|!|~|`|,|;|:|\"|\'|\?|/|<|>|\[|\]|\{|\}|=|\||\\)", " ", str(media.file_name))
+    file_name = re.sub(r"\s+", " ", file_name)
+    
+    saveMedia = Media
+    if MULTIPLE_DB:
+        exists = await Media.count_documents({'file_id': file_id}, limit=1)
+        if exists:
             logger.warning(f'{file_name} is already saved in primary database!')
             return False, 0
-    file = saveMedia(
-        file_id=file_id,
-        file_ref=file_ref,
-        file_name=file_name,
-        file_size=media.file_size,
-        file_type=media.file_type,
-        mime_type=media.mime_type,
-        caption=media.caption.html if media.caption else None,
-    )
-  except ValidationError:
-    logger.exception('Error occurred while saving file in database')
-    return False, 2
-  else:
+        try:
+            primary_db_size = await check_db_size(db)
+            if primary_db_size >= 432:  # 512 - 80 MB left
+                logger.warning("Primary Database is low on space. Switching to secondary DB.")
+                saveMedia = Media2
+        except Exception as e:
+            logger.error(f"Error checking primary DB size: {e}")
+            saveMedia = Media
     try:
-      await file.commit()
-    except DuplicateKeyError:
-      logger.warning(f'{getattr(media, "file_name", "NO_FILE")} is already saved in database')   
-      return False, 0
+        file = saveMedia(
+            file_id=file_id,
+            file_ref=file_ref,
+            file_name=file_name,
+            file_size=media.file_size,
+            file_type=media.file_type,
+            mime_type=media.mime_type,
+            caption=media.caption.html if media.caption else None,
+        )
+    except ValidationError as e:
+        logger.exception(f'Validation error while saving file: {e}')
+        return False, 2
     else:
-        logger.info(f'{getattr(media, "file_name", "NO_FILE")} is saved to database')
-        if await get_status(bot.me.id):
-            await send_msg(bot, file.file_name, file.caption)
-        return True, 1
+        try:
+            await file.commit()
+        except DuplicateKeyError:
+            logger.warning(f'{file_name} is already saved in selected database')
+            return False, 0
+        else:
+            logger.info(f'{file_name} saved successfully in {"secondary" if saveMedia==Media2 else "primary"} database')
+            return True, 1
 
 async def get_search_results(chat_id, query, file_type=None, max_results=10, offset=0, filter=False):
     """For given query return (results, next_offset)"""
@@ -126,20 +151,16 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         raw_pattern = r'(\b|[\.\+\-_])' + query + r'(\b|[\.\+\-_])'
     else:
         raw_pattern = query.replace(' ', r'.*[\s\.\+\-_()]')
-    
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except:
         return []
-
     if USE_CAPTION_FILTER:
         filter = {'$or': [{'file_name': regex}, {'caption': regex}]}
     else:
         filter = {'file_name': regex}
-
     if file_type:
         filter['file_type'] = file_type
-
     total_results = ((await Media.count_documents(filter))+(await Media2.count_documents(filter)))
 
     #verifies max_results is an even number or not
@@ -215,11 +236,9 @@ async def get_file_details(query):
         filedetails = await cursor2.to_list(length=1)
     return filedetails
 
-
 def encode_file_id(s: bytes) -> str:
     r = b""
     n = 0
-
     for i in s + bytes([22]) + bytes([4]):
         if i == 0:
             n += 1
@@ -229,7 +248,6 @@ def encode_file_id(s: bytes) -> str:
                 n = 0
 
             r += bytes([i])
-
     return base64.urlsafe_b64encode(r).decode().rstrip("=")
 
 def encode_file_ref(file_ref: bytes) -> str:
@@ -251,69 +269,76 @@ def unpack_new_file_id(new_file_id):
     return file_id, file_ref
 
 
-async def send_msg(bot, filename, caption): 
+async def dreamxbotz_fetch_media(limit: int) -> List[dict]:
     try:
-        filename = re.sub(r'\(\@\S+\)|\[\@\S+\]|\b@\S+|\bwww\.\S+', '', filename).strip()
-        caption = re.sub(r'\(\@\S+\)|\[\@\S+\]|\b@\S+|\bwww\.\S+', '', caption).strip()
+        if MULTIPLE_DB:
+            db_size = await check_db_size(Media)
+            if db_size > 432:
+                cursor = Media2.find().sort("$natural", -1).limit(limit)
+                files = await cursor.to_list(length=limit)
+                return files
+        cursor = Media.find().sort("$natural", -1).limit(limit)
+        files = await cursor.to_list(length=limit)
+        return files
+    except Exception as e:
+        logger.error(f"Error in dreamxbotz_fetch_media: {e}")
+        return []
+
+async def dreamxbotz_clean_title(filename: str, is_series: bool = False) -> str:
+    try:
+        year_match = re.search(r"^(.*?(\d{4}|\(\d{4}\)))", filename, re.IGNORECASE)
+        if year_match:
+            title = year_match.group(1).replace('(', '').replace(')', '') 
+            return re.sub(r"[._\-\[\]@()]+", " ", title).strip().title()
+        if is_series:
+            season_match = re.search(r"(.*?)(?:S(\d{1,2})|Season\s*(\d+)|Season(\d+))(?:\s*Combined)?", filename, re.IGNORECASE)
+            if season_match:
+                title = season_match.group(1).strip()
+                season = season_match.group(2) or season_match.group(3) or season_match.group(4)
+                title = re.sub(r"[._\-\[\]@()]+", " ", title).strip().title()
+                return f"{title} S{int(season):02}"
+        return re.sub(r"[._\-\[\]@()]+", " ", filename).strip().title()
+    except Exception as e:
+        logger.error(f"Error in truncate_title: {e}")
+        return filename
         
-        year_match = re.search(r"\b(19|20)\d{2}\b", caption)
-        year = year_match.group(0) if year_match else None
+async def dreamxbotz_get_movies(limit: int = 20) -> List[str]:
+    try:
+        cursor = await dreamxbotz_fetch_media(limit * 2)
+        results = set()
+        pattern = r"(?:s\d{1,2}|season\s*\d+|season\d+)(?:\s*combined)?(?:e\d{1,2}|episode\s*\d+)?\b"
+        for file in cursor:
+            file_name = getattr(file, "file_name", "")
+            caption = getattr(file, "caption", "")
+            if not (re.search(pattern, file_name, re.IGNORECASE) or re.search(pattern, caption, re.IGNORECASE)):
+                title = await dreamxbotz_clean_title(file_name)
+                results.add(title)
+            if len(results) >= limit:
+                break
+        return sorted(list(results))[:limit]
+    except Exception as e:
+        logger.error(f"Error in dreamxbotz_get_movies: {e}")
+        return []
 
-        pattern = r"(?i)(?:s|season)0*(\d{1,2})"
-        season = re.search(pattern, caption) or re.search(pattern, filename)
-        season = season.group(1) if season else None 
-
-        if year:
-            filename = filename[: filename.find(year) + 4]  
-        elif season and season in filename:
-            filename = filename[: filename.find(season) + 1]
-
-        qualities = ["ORG", "org", "hdcam", "HDCAM", "HQ", "hq", "HDRip", "hdrip", "camrip", "CAMRip", "hdtc", "predvd", "DVDscr", "dvdscr", "dvdrip", "dvdscr", "HDTC", "dvdscreen", "HDTS", "hdts"]
-        quality = await get_qualities(caption.lower(), qualities) or "HDRip"
-
-        language = ""
-        possible_languages = CAPTION_LANGUAGES
-        for lang in possible_languages:
-            if lang.lower() in caption.lower():
-                language += f"{lang}, "
-        language = language[:-2] if language else "Not idea 😄"
-
-        filename = re.sub(r"[\(\)\[\]\{\}:;'\-!]", "", filename)
-
-        text = "#𝑵𝒆𝒘_𝑭𝒊𝒍𝒆_𝑨𝒅𝒅𝒆𝒅 ✅\n\n👷𝑵𝒂𝒎𝒆: `{}`\n\n🌳𝑸𝒖𝒂𝒍𝒊𝒕𝒚: {}\n\n🍁𝑨𝒖𝒅𝒊𝒐: {}"
-        text = text.format(filename, quality, language)
-
-        if await add_name(OWNERID, filename):
-            imdb = await get_movie_details(filename)  
-            resized_poster = None
-
-            if imdb:
-                poster_url = imdb.get('poster_url')
-                if poster_url:
-                    resized_poster = await fetch_image(poster_url)  
-
-            filenames = filename.replace(" ", '-')
-            btn = [[InlineKeyboardButton('🌲 Get Files 🌲', url=f"https://telegram.me/{temp.U_NAME}?start=getfile-{filenames}")]]
-            
-            if resized_poster:
-                await bot.send_photo(chat_id=DREAMCINEZONE_MOVIE_UPDATE_CHANNEL, photo=resized_poster, caption=text, reply_markup=InlineKeyboardMarkup(btn))
-            else:              
-                await bot.send_message(chat_id=DREAMCINEZONE_MOVIE_UPDATE_CHANNEL, text=text, reply_markup=InlineKeyboardMarkup(btn))
-
-    except:
-        pass
-
-async def get_qualities(text, qualities: list):
-    """Get all Quality from text"""
-    quality = []
-    for q in qualities:
-        if q in text:
-            quality.append(q)
-    quality = ", ".join(quality)
-    return quality[:-2] if quality.endswith(", ") else quality
-
-
-
-
-
+async def dreamxbotz_get_series(limit: int = 30) -> Dict[str, List[int]]:
+    try:
+        cursor = await dreamxbotz_fetch_media(limit * 5)
+        grouped = defaultdict(list)
+        pattern = r"(.*?)(?:S(\d{1,2})|Season\s*(\d+)|Season(\d+))(?:\s*Combined)?(?:E(\d{1,2})|Episode\s*(\d+))?\b"
+        for file in cursor:
+            file_name = getattr(file, "file_name", "")
+            caption = getattr(file, "caption", "")
+            match = None
+            if file_name:
+                match = re.search(pattern, file_name, re.IGNORECASE)
+            if not match and caption:
+                match = re.search(pattern, caption, re.IGNORECASE)
+            if match:
+                title = await dreamxbotz_clean_title(match.group(1), is_series=True)
+                season = int(match.group(2) or match.group(3) or match.group(4))
+                grouped[title].append(season)
+        return {title: sorted(set(seasons))[:10] for title, seasons in grouped.items() if seasons}
+    except Exception as e:
+        logger.error(f"Error in dreamxbotz_get_series: {e}")
+        return []
 

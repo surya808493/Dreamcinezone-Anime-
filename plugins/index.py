@@ -1,4 +1,6 @@
 import logging
+import time
+import re
 import asyncio
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait
@@ -6,12 +8,13 @@ from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdmin
 from info import ADMINS, INDEX_REQ_CHANNEL as LOG_CHANNEL
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from utils import temp
-import re
+from utils import temp, get_readable_time
+from math import ceil
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-lock = asyncio.Lock()
 
+lock = asyncio.Lock()
 
 @Client.on_callback_query(filters.regex(r'^index'))
 async def index_files(bot, query):
@@ -78,7 +81,7 @@ async def send_for_index(bot, message):
     except:
         return await message.reply('Make Sure That Iam An Admin In The Channel, if channel is private')
     if k.empty:
-        return await message.reply('This may be group and iam not a admin of the group.')
+        return await message.reply('This may be group and i am not a admin of the group.')
 
     if message.from_user.id in ADMINS:
         buttons = [
@@ -121,6 +124,11 @@ async def set_skip_number(bot, message):
     else:
         await message.reply("Give me a skip number")
 
+def get_progress_bar(percent, length=15):
+    """Creates an emoji-based progress bar."""
+    filled = int(length * percent / 100)
+    unfilled = length - filled
+    return '🟩' * filled + '⬜️' * unfilled
 
 async def index_files_to_db(lst_msg_id, chat, msg, bot):
     total_files = 0
@@ -129,46 +137,133 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
     deleted = 0
     no_media = 0
     unsupported = 0
+    BATCH_SIZE = 200
+    start_time = time.time()
+
     async with lock:
         try:
             current = temp.CURRENT
             temp.CANCEL = False
-            async for message in bot.iter_messages(chat, lst_msg_id, temp.CURRENT):
+            total_messages = lst_msg_id - current
+
+            if total_messages <= 0:
+                await msg.edit(
+                    "🚫 No Messages To Index.",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Close', callback_data='close_data')]])
+                )
+                return
+
+            batches = ceil(total_messages / BATCH_SIZE)
+            batch_times = []
+
+            await msg.edit(
+                f"📊 Indexing Started......\n"
+                f"📋 Total Messages: <code>{total_messages}</code>\n"
+                f"⏱️ Elapsed: <code>0s</code>",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Cancel', callback_data='index_cancel')]])
+            )
+
+            for batch in range(batches):
                 if temp.CANCEL:
-                    await msg.edit(f"Successfully Cancelled!!\n\nSaved <code>{total_files}</code> files to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>")
                     break
-                current += 1
-                if current % 80 == 0:
-                    can = [[InlineKeyboardButton('Cancel', callback_data='index_cancel')]]
-                    reply = InlineKeyboardMarkup(can)
-                    await msg.edit_text(
-                        text=f"Total messages fetched: <code>{current}</code>\nTotal messages saved: <code>{total_files}</code>\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>",
-                        reply_markup=reply)
-                if message.empty:
-                    deleted += 1
+
+                batch_start = time.time()
+                start_id = current + 1
+                end_id = min(current + BATCH_SIZE, lst_msg_id)
+                message_ids = range(start_id, end_id + 1)
+
+                try:
+                    messages = await bot.get_messages(chat, list(message_ids))
+                    if not isinstance(messages, list):
+                        messages = [messages]
+                except Exception as e:
+                    errors += len(message_ids)
+                    current += len(message_ids)
                     continue
-                elif not message.media:
-                    no_media += 1
-                    continue
-                elif message.media not in [enums.MessageMediaType.VIDEO, enums.MessageMediaType.AUDIO, enums.MessageMediaType.DOCUMENT]:
-                    unsupported += 1
-                    continue
-                media = getattr(message, message.media.value, None)
-                if not media:
-                    unsupported += 1
-                    continue
-                media.file_type = message.media.value
-                media.caption = message.caption
-                aynav, vnay = await save_file(bot, media)
-                if aynav:
-                    total_files += 1
-                elif vnay == 0:
-                    duplicate += 1
-                elif vnay == 2:
-                    errors += 1
+
+                save_tasks = []
+
+                for message in messages:
+                    current += 1
+                    try:
+                        if message.empty:
+                            deleted += 1
+                            continue
+                        elif not message.media:
+                            no_media += 1
+                            continue
+                        elif message.media not in [enums.MessageMediaType.VIDEO, enums.MessageMediaType.AUDIO, enums.MessageMediaType.DOCUMENT]:
+                            unsupported += 1
+                            continue
+
+                        media = getattr(message, message.media.value, None)
+                        if not media:
+                            unsupported += 1
+                            continue
+
+                        media.file_type = message.media.value
+                        media.caption = message.caption
+                        save_tasks.append(save_file(media))
+
+                    except Exception:
+                        errors += 1
+                        continue
+
+                results = await asyncio.gather(*save_tasks, return_exceptions=True)
+                for result in results:
+                    if isinstance(result, Exception):
+                        errors += 1
+                    else:
+                        ok, code = result
+                        if ok:
+                            total_files += 1
+                        elif code == 0:
+                            duplicate += 1
+                        elif code == 2:
+                            errors += 1
+
+                batch_time = time.time() - batch_start
+                batch_times.append(batch_time)
+                elapsed = time.time() - start_time
+                progress = current - temp.CURRENT
+                percentage = (progress / total_messages) * 100
+                avg_batch_time = sum(batch_times) / len(batch_times) if batch_times else 1
+                eta = (total_messages - progress) / BATCH_SIZE * avg_batch_time
+
+                progress_bar = get_progress_bar(int(percentage))
+                await msg.edit(
+                    f"📊 Indexing Progress\n"
+                    f"{progress_bar} <code>{percentage:.1f}%</code>\n\n"
+                    f"Total Messages: <code>{total_messages}</code>\n"
+
+                    f"Fetched: <code>{current}</code>\n"
+                    f"Saved: <code>{total_files}</code>\n"
+                    f"Duplicates: <code>{duplicate}</code>\n"
+                    f"Deleted: <code>{deleted}</code>\n"
+                    f"Non-Media: <code>{no_media + unsupported}</code> (Unsupported: <code>{unsupported}</code>)\n"
+                    f"Errors: <code>{errors}</code>\n"
+                    f"⏱️ Elapsed: <code>{get_readable_time(elapsed)}</code>\n"
+                    f"⏰ ETA: <code>{get_readable_time(eta)}</code>",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Cancel', callback_data='index_cancel')]])
+                )
+
+            elapsed = time.time() - start_time
+            await msg.edit(
+                f"✅ Indexing Completed!\n"
+                f"Total Messages: <code>{total_messages}</code>\n"
+                f"Total Fetched: <code>{current}</code>\n"
+                f"Saved: <code>{total_files}</code>\n"
+                f"Duplicates: <code>{duplicate}</code>\n"
+                f"Deleted: <code>{deleted}</code>\n"
+                f"Non-Media: <code>{no_media + unsupported}</code> (Unsupported: <code>{unsupported}</code>)\n"
+                f"Errors: <code>{errors}</code>\n"
+                f"⏱️ Elapsed: <code>{get_readable_time(elapsed)}</code>",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Close', callback_data='close_data')]])
+            )
+
         except Exception as e:
-            logger.exception(e)
-            await msg.edit(f'Error: {e}')
-        else:
-            await msg.edit(f'Succesfully saved <code>{total_files}</code> to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>')
+            await msg.edit(
+                f"❌ Error: <code>{e}</code>",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Close', callback_data='close_data')]])
+            )
 

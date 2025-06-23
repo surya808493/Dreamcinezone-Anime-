@@ -5,6 +5,8 @@ from utils import extract_user, get_file_id, get_poster
 from datetime import datetime
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import logging
+from database.ia_filterdb import dreamxbotz_get_movies, dreamxbotz_get_series
+from pyrogram.enums import ParseMode
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
@@ -22,7 +24,6 @@ async def showid(client, message):
             f"<b>➲ First Name:</b> {first}\n<b>➲ Last Name:</b> {last}\n<b>➲ Username:</b> {username}\n<b>➲ Telegram ID:</b> <code>{user_id}</code>\n<b>➲ Data Centre:</b> <code>{dc_id}</code>",
             quote=True
         )
-
     elif chat_type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         _id = ""
         _id += (
@@ -185,5 +186,32 @@ async def imdb_callback(bot: Client, quer_y: CallbackQuery):
         await quer_y.message.edit(caption, reply_markup=InlineKeyboardMarkup(btn), disable_web_page_preview=False)
     await quer_y.answer()
         
+@Client.on_message(filters.private & filters.command("movies"))
+async def dreamxbotz_list_movies(client, message):
+    try:
+        movies = await dreamxbotz_get_movies()
+        if not movies:
+            return await message.reply("❌ No Recent Movies Found", parse_mode=ParseMode.HTML)       
+        msg = "<b>Latest Uploads List ✅</b>\n\n"
+        msg += "<b>🎬 Movies:</b>\n\n"
+        msg += "\n".join(f"<b>{i+1}. {m}</b>" for i, m in enumerate(movies))
+        await message.reply(msg[:4096], parse_mode=ParseMode.HTML)
+    except Exception as e:
+        logger.error(f"Error in dreamxbotz_list_movies: {e}")
+        await message.reply("An Error Occurred ☹️", parse_mode=ParseMode.HTML)
 
-        
+@Client.on_message(filters.private & filters.command("series"))
+async def dreamxbotz_list_series(client, message):
+    try:
+        series_data = await dreamxbotz_get_series()
+        if not series_data:
+            return await message.reply("❌ No Recent Series Found", parse_mode=ParseMode.HTML)       
+        msg = "<b>Latest Uploades List ✅</b>\n\n"
+        msg += "<b>📺 Series:</b>\n"
+        for i, (title, seasons) in enumerate(series_data.items(), 1):
+            season_list = ", ".join(f"{s}" for s in seasons)
+            msg += f"<b>{i}. {title} - Season {season_list}</b>\n"
+        await message.reply(msg[:4096], parse_mode=ParseMode.HTML)
+    except Exception as e:
+        logger.error(f"Error in dreamxbotz_list_series: {e}")
+        await message.reply("An Error Occurred ☹️", parse_mode=ParseMode.HTML)

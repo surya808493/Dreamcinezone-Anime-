@@ -1,7 +1,7 @@
 from pyrogram import Client, filters, enums
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid
-from info import ADMINS, LOG_CHANNEL, SUPPORT_CHAT, OWNER_LNK, MELCOW_NEW_USERS, MELCOW_VID
+from info import ADMINS,MULTIPLE_DB, LOG_CHANNEL, OWNER_LNK,  MELCOW_VID
 from database.users_chats_db import db, db2
 from database.ia_filterdb import Media, Media2
 from utils import get_size, temp, get_settings, get_readable_time
@@ -9,32 +9,26 @@ from Script import script
 from pyrogram.errors import ChatAdminRequired
 import asyncio
 import psutil
-import time
+import logging
 from time import time
 from bot import botStartTime
 
-"""-----------------------------------------https://t.me/dreamcinezone--------------------------------------"""
+"""-----------------------------------------https://t.me/dreamxbotz--------------------------------------"""
 
 @Client.on_message(filters.new_chat_members & filters.group)
 async def save_group(bot, message):
-    r_j_check = [u.id for u in message.new_chat_members]
-    if temp.ME in r_j_check:
+    dreamx_check = [u.id for u in message.new_chat_members]
+    if temp.ME in dreamx_check:
         if not await db.get_chat(message.chat.id):
             total=await bot.get_chat_members_count(message.chat.id)
-            r_j = message.from_user.mention if message.from_user else "Anonymous" 
-            await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, r_j))       
+            dreamx_botz = message.from_user.mention if message.from_user else "Anonymous" 
+            await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, dreamx_botz))       
             await db.add_chat(message.chat.id, message.chat.title)
         if message.chat.id in temp.BANNED_CHATS:
-            
-            buttons = [[
-                InlineKeyboardButton('📌 ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ 📌', url=OWNER_LNK)
-            ]]
-            reply_markup=InlineKeyboardMarkup(buttons)
-            k = await message.reply(
-                text='<b>ᴄʜᴀᴛ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ 🐞\n\nᴍʏ ᴀᴅᴍɪɴꜱ ʜᴀꜱ ʀᴇꜱᴛʀɪᴄᴛᴇᴅ ᴍᴇ ꜰʀᴏᴍ ᴡᴏʀᴋɪɴɢ ʜᴇʀᴇ ! ɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴋɴᴏᴡ ᴍᴏʀᴇ ᴀʙᴏᴜᴛ ɪᴛ ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ.</b>',
-                reply_markup=reply_markup,
-            )
 
+            buttons = [[InlineKeyboardButton('📌 ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ 📌', url=OWNER_LNK)]]
+            reply_markup=InlineKeyboardMarkup(buttons)
+            k = await message.reply(text='<b>ᴄʜᴀᴛ ɴᴏᴛ ᴀʟʟᴏᴡᴇᴅ 🐞\n\nᴍʏ ᴀᴅᴍɪɴꜱ ʜᴀꜱ ʀᴇꜱᴛʀɪᴄᴛᴇᴅ ᴍᴇ ꜰʀᴏᴍ ᴡᴏʀᴋɪɴɢ ʜᴇʀᴇ ! ɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴋɴᴏᴡ ᴍᴏʀᴇ ᴀʙᴏᴜᴛ ɪᴛ ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ.</b>',reply_markup=reply_markup,)
             try:
                 await k.pin()
             except:
@@ -48,6 +42,10 @@ async def save_group(bot, message):
         await message.reply_text(
             text=f"<b>Thankyou For Adding Me In {message.chat.title} ❣️\n\nIf you have any questions & doubts about using me contact support.</b>",
             reply_markup=reply_markup)
+        try:
+            await db.connect_group(message.chat.id, message.from_user)
+        except Exception as e:
+            logging.error(f"DB error connecting group: {e}")
     else:
         settings = await get_settings(message.chat.id)
         if settings["welcome"]:
@@ -89,7 +87,7 @@ async def leave_a_chat(bot, message):
         reply_markup=InlineKeyboardMarkup(buttons)
         await bot.send_message(
             chat_id=chat,
-            text='<b>ʜᴇʟʟᴏ ꜰʀɪᴇɴᴅꜱ, \nᴍʏ ᴀᴅᴍɪɴ ʜᴀꜱ ᴛᴏʟᴅ ᴍᴇ ᴛᴏ ʟᴇᴀᴠᴇ ꜰʀᴏᴍ ɢʀᴏᴜᴘ, ꜱᴏ ɪ ʜᴀᴠᴇ ᴛᴏ ɢᴏ !/nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴀᴅᴅ ᴍᴇ ᴀɢᴀɪɴ ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ.</b>',
+            text='<b>ʜᴇʟʟᴏ ꜰʀɪᴇɴᴅꜱ, \nᴍʏ ᴀᴅᴍɪɴ ʜᴀꜱ ᴛᴏʟᴅ ᴍᴇ ᴛᴏ ʟᴇᴀᴠᴇ ꜰʀᴏᴍ ɢʀᴏᴜᴘ, ꜱᴏ ɪ ʜᴀᴠᴇ ᴛᴏ ɢᴏ ! \nɪꜰ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴀᴅᴅ ᴍᴇ ᴀɢᴀɪɴ ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ.</b>',
             reply_markup=reply_markup,
         )
 
@@ -155,26 +153,35 @@ async def re_enable_chat(bot, message):
 
 
 @Client.on_message(filters.command('stats') & filters.user(ADMINS))
-async def get_ststs(bot, message):
-    rju = await message.reply('ᴀᴄᴄᴇꜱꜱɪɴɢ ꜱᴛᴀᴛᴜꜱ ᴅᴇᴛᴀɪʟꜱ...')
-    total_users = await db.total_users_count()
-    totl_chats = await db.total_chat_count()
-    premium = await db.all_premium_users()
-    file = await Media.count_documents()
-    size = await db.get_db_size()
-    free = 536870912 - size
-    size = get_size(size)
-    free = get_size(free)
-    files = await Media2.count_documents()
-    size2 = await db2.get_db_size()
-    free2 = 536870912 - size2
-    size2 = get_size(size2)
-    free2 = get_size(free2)
-    uptime = get_readable_time(time() - botStartTime)
-    ram = psutil.virtual_memory().percent
-    cpu = psutil.cpu_percent()
-    await rju.edit(script.STATUS_TXT.format(total_users, totl_chats, premium, file, size, free, files, size2, free2, uptime, ram, cpu, (int(file)+int(files)) ))
-
+async def get_stats(bot, message):
+    try:
+        msg = await message.reply('ᴀᴄᴄᴇꜱꜱɪɴɢ ꜱᴛᴀᴛᴜꜱ ᴅᴇᴛᴀɪʟꜱ...')
+        total_users = await db.total_users_count()
+        totl_chats = await db.total_chat_count()
+        premium = await db.all_premium_users()
+        file1 = await Media.count_documents()
+        size = await db.get_db_size()
+        free = 536870912 - size
+        size = get_size(size)
+        free = get_size(free)
+        uptime = get_readable_time(time() - botStartTime)
+        ram = psutil.virtual_memory().percent
+        cpu = psutil.cpu_percent()
+        if MULTIPLE_DB == False:
+            await msg.edit(script.STATUS_TXT.format(
+                total_users, totl_chats, premium, file1, size, free, uptime, ram, cpu))                                               
+            return
+        file2 = await Media2.count_documents()
+        size2 = await db2.get_db_size()
+        free2 = 536870912 - size2  
+        size2 = get_size(size2)
+        free2 = get_size(free2)
+        await msg.edit(script.MULTI_STATUS_TXT.format(
+            total_users, totl_chats, premium, file1, size, free,
+            file2, size2, free2, uptime, ram, cpu, (int(file1) + int(file2))
+        ))
+    except Exception as e:
+       print(f"Error In stats :- {e}")        
 
 @Client.on_message(filters.command('invite') & filters.user(ADMINS))
 async def gen_invite(bot, message):
@@ -261,7 +268,7 @@ async def unban_a_user(bot, message):
     
 @Client.on_message(filters.command('users') & filters.user(ADMINS))
 async def list_users(bot, message):
-    raju = await message.reply('Getting List Of Users')
+    dreamxbotz = await message.reply('Getting List Of Users')
     users = await db.get_all_users()
     out = "Users Saved In DB Are:\n\n"
     async for user in users:
@@ -270,7 +277,7 @@ async def list_users(bot, message):
             out += '( Banned User )'
         out += '\n'
     try:
-        await raju.edit_text(out)
+        await dreamxbotz.edit_text(out)
     except MessageTooLong:
         with open('users.txt', 'w+') as outfile:
             outfile.write(out)
@@ -278,7 +285,7 @@ async def list_users(bot, message):
 
 @Client.on_message(filters.command('chats') & filters.user(ADMINS))
 async def list_chats(bot, message):
-    raju = await message.reply('Getting List Of chats')
+    dreamxbotz = await message.reply('Getting List Of chats')
     chats = await db.get_all_chats()
     out = "Chats Saved In DB Are:\n\n"
     async for chat in chats:
@@ -287,8 +294,22 @@ async def list_chats(bot, message):
             out += '( Disabled Chat )'
         out += '\n'
     try:
-        await raju.edit_text(out)
+        await dreamxbotz.edit_text(out)
     except MessageTooLong:
         with open('chats.txt', 'w+') as outfile:
             outfile.write(out)
         await message.reply_document('chats.txt', caption="List Of Chats")
+
+
+@Client.on_message(filters.command('group_cmd'))
+async def group_commands(client, message):
+    user = message.from_user.mention
+    user_id = message.from_user.id
+    await message.reply_text(script.GROUP_CMD, disable_web_page_preview=True)
+
+@Client.on_message(filters.command('admin_cmd') & filters.user(ADMINS))
+async def admin_commands(client, message):
+    user = message.from_user.mention
+    user_id = message.from_user.id
+    await message.reply_text(script.ADMIN_CMD, disable_web_page_preview=True)
+    

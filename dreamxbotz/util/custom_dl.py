@@ -1,15 +1,15 @@
-#Thanks @dreamcinezone for helping in this journey 
+#Thanks @dreamxbotz for helping in this journey 
 import math
 import asyncio
 import logging
 from info import *
 from typing import Dict, Union
-from dreamcinezone_botz.Bot import work_loads
+from dreamxbotz.Bot import work_loads
 from pyrogram import Client, utils, raw
 from .file_properties import get_file_ids
 from pyrogram.session import Session, Auth
 from pyrogram.errors import AuthBytesInvalid
-from dreamcinezone_botz.server.exceptions import FIleNotFound
+from dreamxbotz.server.exceptions import FIleNotFound
 from pyrogram.file_id import FileId, FileType, ThumbnailSource
 
 

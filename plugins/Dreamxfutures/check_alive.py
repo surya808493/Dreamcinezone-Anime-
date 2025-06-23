@@ -10,6 +10,14 @@ from info import ADMINS, Bot_cmds
 
 logging.basicConfig(level=logging.INFO)
 
+
+@Client.on_message(filters.command(["stickerid"]))
+async def stickerid(bot, message):   
+    if message.reply_to_message.sticker:
+       await message.reply(f"**Sticker ID is**  \n `{message.reply_to_message.sticker.file_id}` \n \n ** Unique ID is ** \n\n`{message.reply_to_message.sticker.file_unique_id}`", quote=True)
+    else: 
+       await message.reply("Oops !! Not a sticker file")
+
 CMD = ["/", "."]  
 
 @Client.on_message(filters.command("alive", CMD))
@@ -35,10 +43,14 @@ async def ping(_, message):
 start_time = time.time()
 
 def format_time(seconds):
-    """Convert seconds to H:M:S format."""
-    minutes, sec = divmod(int(seconds), 60)
-    hours, minutes = divmod(minutes, 60)
-    return f"{hours}h {minutes}m {sec}s"
+    seconds = int(seconds)
+    days, remainder = divmod(seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, sec = divmod(remainder, 60)
+    if days:
+        return f"{days}ᴅ : {hours:02d}ʜ : {minutes:02d}ᴍ: {sec:02d}s"
+    else:
+        return f"{hours:02d}ʜ : {minutes:02d}ᴍ : {sec:02d}s"
 
 def get_size(size_kb):
     """Convert KB to a human-readable format."""

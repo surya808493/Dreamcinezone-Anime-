@@ -40,10 +40,10 @@ async def gen_link_s(bot, message):
 @Client.on_message(filters.command(['batch', 'pbatch']) & filters.create(allowed))
 async def gen_link_batch(bot, message):
     if " " not in message.text:
-        return await message.reply("Use correct format.\nExample <code>/batch https://t.me/HP_MOVIES_WORLD/10 https://t.me/HP_MOVIES_WORLD/20</code>.")
+        return await message.reply("Use correct format.\nExample <code>/batch https://t.me/dreamxbotz/10 https://t.me/dreamxbotz/20</code>.")
     links = message.text.strip().split(" ")
     if len(links) != 3:
-        return await message.reply("Use correct format.\nExample <code>/batch https://t.me/All_Movies_Studio/10 https://t.me/All_Movies_Studio/20</code>.")
+        return await message.reply("Use correct format.\nExample <code>/batch https://t.me/dreamxbotz/10 https://t.me/dreamxbotz/20</code>.")
     cmd, first, last = links
     regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
     match = regex.match(first)
@@ -82,8 +82,6 @@ async def gen_link_batch(bot, message):
     FRMT = "Generating Link...\nTotal Messages: `{total}`\nDone: `{current}`\nRemaining: `{rem}`\nStatus: `{sts}`"
 
     outlist = []
-
-    # file store without db channel
     og_msg = 0
     tot = 0
     async for msg in bot.iter_messages(f_chat_id, l_msg_id, f_msg_id):
@@ -91,7 +89,6 @@ async def gen_link_batch(bot, message):
         if msg.empty or msg.service:
             continue
         if not msg.media:
-            # only media messages supported.
             continue
         try:
             file_type = msg.media

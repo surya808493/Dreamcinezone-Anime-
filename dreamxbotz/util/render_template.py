@@ -1,19 +1,19 @@
-#Thanks @dreamcinezone for helping in this journey 
+#Thanks @dreamxbotz for helping in this journey 
 
 import jinja2
 from info import *
-from dreamcinezone_botz.Bot import dreamcinezoneBot
-from dreamcinezone_botz.util.human_readable import humanbytes
-from dreamcinezone_botz.util.file_properties import get_file_ids
-from dreamcinezone_botz.server.exceptions import InvalidHash
+from dreamxbotz.Bot import dreamxbotz
+from dreamxbotz.util.human_readable import humanbytes
+from dreamxbotz.util.file_properties import get_file_ids
+from dreamxbotz.server.exceptions import InvalidHash
 import urllib.parse
 import logging
 import aiohttp
 
 
 async def render_page(id, secure_hash, src=None):
-    file = await dreamcinezoneBot.get_messages(int(LOG_CHANNEL), int(id))
-    file_data = await get_file_ids(dreamcinezoneBot, int(LOG_CHANNEL), int(id))
+    file = await dreamxbotz.get_messages(int(LOG_CHANNEL), int(id))
+    file_data = await get_file_ids(dreamxbotz, int(LOG_CHANNEL), int(id))
     if file_data.unique_id[:6] != secure_hash:
         logging.debug(f"link hash: {secure_hash} - {file_data.unique_id[:6]}")
         logging.debug(f"Invalid hash for message with - ID {id}")
@@ -27,9 +27,9 @@ async def render_page(id, secure_hash, src=None):
     tag = file_data.mime_type.split("/")[0].strip()
     file_size = humanbytes(file_data.file_size)
     if tag in ["video", "audio"]:
-        template_file = "dreamcinezone_botz/template/req.html"
+        template_file = "dreamxbotz/template/req.html"
     else:
-        template_file = "dreamcinezone_botz/template/dl.html"
+        template_file = "dreamxbotz/template/dl.html"
         async with aiohttp.ClientSession() as s:
             async with s.get(src) as u:
                 file_size = humanbytes(int(u.headers.get("Content-Length")))

@@ -1,4 +1,4 @@
-#Thanks @dreamcinezone for helping in this journey 
+#Thanks @dreamxbotz for helping in this journey 
 def humanbytes(size):
     if not size:
         return ""

@@ -1,11 +1,9 @@
 import re
 import aiohttp
-import asyncio
 from io import BytesIO
 from PIL import Image
-from info import DREAMCINEZONE_IMAGE_FETCH
+from info import DREAMXBOTZ_IMAGE_FETCH
 from imdb import Cinemagoer
-
 
 ia = Cinemagoer()
 LONG_IMDB_DESCRIPTION = False
@@ -16,10 +14,9 @@ def list_to_str(lst):
     return ""
 
 async def fetch_image(url, size=(720, 720)):
-    if not DREAMCINEZONE_IMAGE_FETCH:
+    if not DREAMXBOTZ_IMAGE_FETCH:
         print("Image fetching is disabled.")
         return None
-
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -56,26 +53,21 @@ async def get_movie_details(query, id=False, file=None):
                     year = list_to_str(year[:1])
             else:
                 year = None
-
             movieid = ia.search_movie(title.lower(), results=10)
             if not movieid:
                 return None
-
             if year:
                 filtered = list(filter(lambda k: str(k.get('year')) == str(year), movieid))
                 if not filtered:
                     filtered = movieid
             else:
                 filtered = movieid
-
             movieid = list(filter(lambda k: k.get('kind') in ['movie', 'tv series'], filtered))
             if not movieid:
                 movieid = filtered
-
             movieid = movieid[0].movieID
         else:
             movieid = query
-
         movie = ia.get_movie(movieid)
         if movie.get("original air date"):
             date = movie["original air date"]
@@ -83,18 +75,14 @@ async def get_movie_details(query, id=False, file=None):
             date = movie.get("year")
         else:
             date = "N/A"
-
         plot = movie.get('plot')
         if plot and len(plot) > 0:
             plot = plot[0]
         else:
             plot = movie.get('plot outline')
-
         if plot and len(plot) > 800:
             plot = plot[:800] + "..."
-
         poster_url = movie.get('full-size cover url')
-
         return {
             'title': movie.get('title'),
             'votes': movie.get('votes'),
@@ -121,10 +109,9 @@ async def get_movie_details(query, id=False, file=None):
             'genres': list_to_str(movie.get("genres")),
             'poster_url': poster_url,
             'plot': plot,
-            'rating': str(movie.get("rating")),
+            'rating': str(movie.get("rating", "N/A")),
             'url': f'https://www.imdb.com/title/tt{movieid}'
         }
-
     except Exception as e:
         print(f"An error occurred in get_movie_details: {e}")
         return None
