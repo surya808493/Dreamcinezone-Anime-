@@ -6,6 +6,7 @@ from pyrogram import Client, filters
 from info import CHANNELS, MOVIE_UPDATE_CHANNEL
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from utils import temp
 
 CAPTION_LANGUAGES = ["Bhojpuri", "Hindi", "Bengali", "Tamil", "English", "Bangla", "Telugu", "Malayalam", "Kannada", "Marathi", "Punjabi", "Bengoli", "Gujrati", "Korean", "Gujarati", "Spanish", "French", "German", "Chinese", "Arabic", "Portuguese", "Russian", "Japanese", "Odia", "Assamese", "Urdu"]
 
@@ -25,7 +26,7 @@ async def media(bot, message):
     success, dreamxbotz = await save_file(media)
     try:  
         if success and dreamxbotz == 1 and await db.movie_update_status(bot.me.id):            
-            await send_msg(bot, file_name=media.file_name, caption=media.caption)
+            await send_msg(bot, filename=media.file_name, caption=media.caption)
     except Exception as e:
         print(f"Error In Movie Update - {e}")
         pass
@@ -61,7 +62,7 @@ async def send_msg(bot, filename, caption):
 
         filename = re.sub(r"[\(\)\[\]\{\}:;'\-!]", "", filename)
         filename = re.sub(r"\s+", " ", filename).strip()
-
+        
         rating = "N/A"
         resized_poster = None
         if await db.add_name(filename):
@@ -75,8 +76,8 @@ async def send_msg(bot, filename, caption):
             text = "#𝑵𝒆𝒘_𝑭𝒊𝒍𝒆_𝑨𝒅𝒅𝒆𝒅 ✅\n\n✨ `{}` ⿻\n\nғᴏʀᴍᴀᴛ: {}\n\nᴀᴜᴅɪᴏ: {}\n\nʀᴀᴛɪɴɢ: {} /10"
             text = text.format(filename, quality, language, rating)
 
-            filenames = filename.replace(" ", '-')
-            btn = [[InlineKeyboardButton(' ɢᴇᴛ ғɪʟᴇs ', url=f"https://telegram.me/{temp.U_NAME}?start=getfile-{filenames}")]]
+            search_movie = filename.replace(" ", '-')
+            btn = [[InlineKeyboardButton(' ɢᴇᴛ ғɪʟᴇs ', url=f"https://telegram.me/{temp.U_NAME}?start=getfile-{search_movie}")]]
 
             if resized_poster:
                 await bot.send_photo(chat_id=MOVIE_UPDATE_CHANNEL, photo=resized_poster, caption=text, reply_markup=InlineKeyboardMarkup(btn))

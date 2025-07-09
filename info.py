@@ -77,7 +77,7 @@ DATABASE_NAME = environ.get('DATABASE_NAME', "cluster")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'dreamcinezone_files')
 
 # If MULTIPLE_DB Is True Then Fill DATABASE_URI2 Value Else You Will Get Error.
-MULTIPLE_DB = is_enabled(os.environ.get('MULTIPLE_DB', "False"), False) # Type True For Turn On MULTIPLE DB FUNTION 
+MULTIPLE_DB = is_enabled(os.environ.get('MULTIPLE_DB', "True"), True) # Type True For Turn On MULTIPLE DB FUNTION 
 DATABASE_URI2 = environ.get('DATABASE_URI2', "")
 
 # ============================
@@ -85,7 +85,7 @@ DATABASE_URI2 = environ.get('DATABASE_URI2', "")
 # ============================
 MOVIE_UPDATE_NOTIFICATION = bool(environ.get('MOVIE_UPDATE_NOTIFICATION', False))  # Notification On (True) / Off (False)
 MOVIE_UPDATE_CHANNEL = int(environ.get('MOVIE_UPDATE_CHANNEL', '-100'))  # Notification of sent to your channel
-DREAMXBOTZ_IMAGE_FETCH = bool(environ.get('DREAMXBOTZ_IMAGE_FETCH', False))  # On (True) / Off (False)
+DREAMXBOTZ_IMAGE_FETCH = bool(environ.get('DREAMXBOTZ_IMAGE_FETCH', True))  # On (True) / Off (False)
 
 # ============================
 # Verification Settings
@@ -206,6 +206,7 @@ REACTIONS = ["🤝", "😇", "🤗", "😍", "👍", "🎅", "😐", "🥰", "�
 # Command Bot
 # ============================
 Bot_cmds = {
+    "stats": "Get Stats Of Bot ",
     "start": "Sᴛᴀʀᴛ Mᴇ Bᴀʙʏ",
     "alive": " Cʜᴇᴄᴋ Bᴏᴛ Aʟɪᴠᴇ ᴏʀ Nᴏᴛ ",
     "settings": "ᴄʜᴀɴɢᴇ sᴇᴛᴛɪɴɢs",

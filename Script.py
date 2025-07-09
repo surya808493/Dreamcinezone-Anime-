@@ -30,9 +30,17 @@ class script(object):
 ├⍟ Lᴀɴɢᴜᴀɢᴇ : <a href='https://www.python.org/download/releases/3.0/'>ᴘʏᴛʜᴏɴ 𝟹</a> 
 ├⍟ Dᴀᴛᴀʙᴀsᴇ : <a href='https://www.mongodb.com/'>ᴍᴏɴɢᴏ ᴅʙ</a> 
 ├⍟ Bᴏᴛ Sᴇʀᴠᴇʀ : <a href='https://heroku.com/'>ʜᴇʀᴏᴋᴜ</a> 
-├⍟ Bᴜɪʟᴅ Sᴛᴀᴛᴜs : ᴠ1.2 [ ꜱᴛᴀʙʟᴇ ]
+├⍟ Bᴜɪʟᴅ Sᴛᴀᴛᴜs : ᴠ1.3 [ ꜱᴛᴀʙʟᴇ ]
 ╰───────────────⍟</b>"""
-        
+    RESTART_TXT = """
+<b>{} Bᴏᴛ Rᴇsᴛᴀʀᴛᴇᴅ !
+
+📅 Dᴀᴛᴇ : <code>{}</code>
+⏰ Tɪᴍᴇ : <code>{}</code>
+🌐 Tɪᴍᴇᴢᴏɴᴇ : <code>Asia/Kolkata</code>
+🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code> v1.3 [ Sᴛᴀʙʟᴇ ]</code>
+</b>"""
+
     CHANNELS = """
 <b>⚡ ɢʀᴏᴜᴘs & ᴄʜᴀɴɴᴇʟs ɪɴғᴏ ⚡ 
 
@@ -96,7 +104,9 @@ Aᴅᴅᴇᴅ Bʏ - {}
 Iᴅ - <code>{}</code>
 Nᴀᴍᴇ - {}
 """
-    ALRTS_TXT = """ᴛʜɪs ɪs ɴᴏᴛ ғᴏʀ ʏᴏᴜʀ ʙʀᴜʜ 🚫"""
+    NT_ADMIN_ALRT_TXT = """‼️ ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ ‼️"""
+
+    NT_ALRT_TXT = """Not Yours!"""
     
     ALRT_TXT = """ʜᴇʟʟᴏ {},
 ᴛʜɪꜱ ɪꜱ ɴᴏᴛ ʏᴏᴜʀ ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ,
@@ -184,21 +194,14 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 <b>🏷 Title</b>: <a href={url}>{title}</a>
 🎭 Genres: {genres}
 📆 Year: <a href={url}/releaseinfo>{year}</a>
-🌟 Rating: <a href={url}/ratings>{rating}</a> / 10 (based on {votes} user ratings.)
-📀 RunTime: {runtime} Minutes
+🌟 Rating: <a href={url}/ratings>({rating}</a> /10 )
+
 
 ⏰Result Shown in: {remaining_seconds} <i>seconds</i> 🔥
 Requested by : {message.from_user.mention}</b>"""
     
 
-    RESTART_TXT = """
-<b>{} Bᴏᴛ Rᴇsᴛᴀʀᴛᴇᴅ !
-
-📅 Dᴀᴛᴇ : <code>{}</code>
-⏰ Tɪᴍᴇ : <code>{}</code>
-🌐 Tɪᴍᴇᴢᴏɴᴇ : <code>Asia/Kolkata</code>
-🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code> v1.2 [ Sᴛᴀʙʟᴇ ]</code>
-</b>"""
+    
 
     LOGO = """
 

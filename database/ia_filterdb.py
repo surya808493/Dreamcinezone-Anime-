@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Global cache for DB size
 _db_stats_cache = {
-    "timestamp": None,  
-    "primary_size": 0   
+    "timestamp": None,
+    "primary_size": 0.0
 }
 
 # Primary DB
@@ -64,24 +64,32 @@ class Media2(Document):
         collection_name = COLLECTION_NAME
 
 async def check_db_size(db):
+    """
+    Retrieves and caches the database size in MB.
+    Caches results for 10 minutes, but always refreshes if cached size is >= 10 MB.
+    """
     try:
         now = datetime.utcnow()
-        if _db_stats_cache["timestamp"] is None or (now - _db_stats_cache["timestamp"] > timedelta(minutes=10)):
-            pass  
-        # If size is near the threshold (432MB), force a refresh
-        elif _db_stats_cache["primary_size"] >= (512 - 80):  # 432MB 
-            pass  
-        else:
+        cache_stale_by_time = _db_stats_cache["timestamp"] is None or \
+                             (now - _db_stats_cache["timestamp"] > timedelta(minutes=10))
+        refresh_if_size_threshold = _db_stats_cache["primary_size"] >= 05.0
+        if not cache_stale_by_time and not refresh_if_size_threshold:
             print(f"📊 DB Size (cached): {_db_stats_cache['primary_size']:.2f} MB")
             return _db_stats_cache["primary_size"]
+
         stats = await db.command("dbstats")
         db_size = stats["dataSize"]
-        db_size_mb = db_size / (1024 * 1024)  # Convert to MB
+        db_size_mb = db_size / (1024 * 1024) 
+        
+        # Update the cache
         _db_stats_cache["primary_size"] = db_size_mb
         _db_stats_cache["timestamp"] = now
+        
         print(f"📊 DB Size (updated): {db_size_mb:.2f} MB")
         return db_size_mb
+        
     except Exception as e:
+        # Consider using a proper logging framework instead of print
         print(f"Error Checking Database Size: {e}")
         return 0
     
@@ -99,7 +107,7 @@ async def save_file(media):
             return False, 0
         try:
             primary_db_size = await check_db_size(db)
-            if primary_db_size >= 432:  # 512 - 80 MB left
+            if primary_db_size >= 7:  # 512 - 505 MB left
                 logger.warning("Primary Database is low on space. Switching to secondary DB.")
                 saveMedia = Media2
         except Exception as e:
@@ -128,22 +136,18 @@ async def save_file(media):
             logger.info(f'{file_name} saved successfully in {"secondary" if saveMedia==Media2 else "primary"} database')
             return True, 1
 
+
 async def get_search_results(chat_id, query, file_type=None, max_results=10, offset=0, filter=False):
-    """For given query return (results, next_offset)"""
     if chat_id is not None:
         settings = await get_settings(int(chat_id))
         try:
-            if settings['max_btn']:
-                max_results = 10
-            else:
-                max_results = int(MAX_B_TN)
+            max_results = 10 if settings.get('max_btn') else int(MAX_B_TN)
         except KeyError:
+            
             await save_group_settings(int(chat_id), 'max_btn', False)
             settings = await get_settings(int(chat_id))
-            if settings['max_btn']:
-                max_results = 10
-            else:
-                max_results = int(MAX_B_TN)
+            max_results = 10 if settings.get('max_btn') else int(MAX_B_TN)
+
     query = query.strip()
     if not query:
         raw_pattern = '.'
@@ -151,9 +155,10 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         raw_pattern = r'(\b|[\.\+\-_])' + query + r'(\b|[\.\+\-_])'
     else:
         raw_pattern = query.replace(' ', r'.*[\s\.\+\-_()]')
+
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
-    except:
+    except re.error:
         return []
     if USE_CAPTION_FILTER:
         filter = {'$or': [{'file_name': regex}, {'caption': regex}]}
@@ -161,35 +166,26 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         filter = {'file_name': regex}
     if file_type:
         filter['file_type'] = file_type
-    total_results = ((await Media.count_documents(filter))+(await Media2.count_documents(filter)))
-
-    #verifies max_results is an even number or not
-    if max_results%2 != 0: 
-        logger.info(f"Since max_results is an odd number ({max_results}), bot will use {max_results+1} as max_results to make it even.")
+    total_results = await Media.count_documents(filter)
+    if MULTIPLE_DB:
+        total_results += await Media2.count_documents(filter)
+    if max_results % 2 != 0:
+        logger.info(f"Since max_results is odd ({max_results}), using {max_results + 1}")
         max_results += 1
-
-    cursor = Media.find(filter)
-    cursor2 = Media2.find(filter)
-
-    cursor.sort('$natural', -1)
-    cursor2.sort('$natural', -1)
-
-    cursor2.skip(offset).limit(max_results)
-
-    fileList2 = await cursor2.to_list(length=max_results)
-    if len(fileList2)<max_results:
-        next_offset = offset+len(fileList2)
-        cursorSkipper = (next_offset-(await Media2.count_documents(filter)))
-        cursor.skip(cursorSkipper if cursorSkipper>=0 else 0).limit(max_results-len(fileList2))
-        fileList1 = await cursor.to_list(length=(max_results-len(fileList2)))
-        files = fileList2+fileList1
-        next_offset = next_offset + len(fileList1)
+    cursor1 = Media.find(filter).sort('$natural', -1).skip(offset).limit(max_results)
+    files1 = await cursor1.to_list(length=max_results)
+    if MULTIPLE_DB:
+        remaining = max_results - len(files1)
+        cursor2 = Media2.find(filter).sort('$natural', -1).skip(offset).limit(remaining)
+        files2 = await cursor2.to_list(length=remaining)
+        files = files1 + files2
     else:
-        files = fileList2
-        next_offset = offset + max_results
+        files = files1
+    next_offset = offset + len(files)
     if next_offset >= total_results:
-        next_offset = ''
+        next_offset = '' 
     return files, next_offset, total_results
+
 
 
 async def get_bad_files(query, file_type=None, filter=False):
