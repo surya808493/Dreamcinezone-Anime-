@@ -56,42 +56,37 @@ async def media(bot, message):
 
 async def send_msg(bot, filename, caption): 
     try:
-        filename = clean_mentions_links(filename).title()
-        caption = clean_mentions_links(caption).lower()
+        filename = clean_mentions_links(filename).title()        
+        caption = clean_mentions_links(caption).lower()          
         year_match = re.search(r"\b(19|20)\d{2}\b", caption)
         year = year_match.group(0) if year_match else None
-
         pattern = r"(?i)(?:s|season)0*(\d{1,2})"
         season = re.search(pattern, caption) or re.search(pattern, filename)
         season = season.group(1) if season else None 
-
         if year and year in filename:
             filename = filename[: filename.find(year) + 4]  
         elif season and season in filename:
             filename = filename[: filename.find(season) + 1]
-
         qualities = ["ORG", "org", "hdcam", "HDCAM", "HQ", "hq", "HDRip", "hdrip", "camrip", "CAMRip", "hdtc", "predvd", "DVDscr", "dvdscr", "dvdrip", "HDTC", "dvdscreen", "HDTS", "hdts"]
-        quality = await get_qualities(caption.lower(), qualities) or "HDRip"
-
+        quality = await get_qualities(caption.lower(), qualities) or "HDRip"    
         language = ""
         possible_languages = CAPTION_LANGUAGES
         for lang in possible_languages:
             if lang.lower() in caption.lower():
                 language += f"{lang}, "
         language = language[:-2] if language else "No idea 😄"
-        ott_platform = extract_ott_platform(filename + " " + caption)
+        ott_platform = extract_ott_platform(filename + " " + caption)           
         filename = re.sub(r"[()\[\]{}:;'\-!,.?]", "", filename)
         filename = re.sub(r"\s+", " ", filename).strip()
-        
         rating = "N/A"
         resized_poster = None
-        if await db.add_name(filename):
-            imdb = await get_movie_details(filename)
+        if await db.add_name(filename):                                        
+            imdb = await get_movie_details(filename)                          
             if imdb:
                 poster_url = imdb.get('poster_url')
                 rating = imdb.get("rating", "N/A")
                 if poster_url:
-                    resized_poster = await fetch_image(poster_url)
+                    resized_poster = await fetch_image(poster_url)            
             text = (
                 f"📥 𝗡𝗘𝗪 𝗙𝗜𝗟𝗘 𝗔𝗗𝗗𝗘𝗗 📥\n\n"
                 f"🎬 𝗧𝗶𝘁𝗹𝗲 : ✨ <code>{filename}</code>\n"
@@ -105,7 +100,6 @@ async def send_msg(bot, filename, caption):
             )
             search_movie = filename.replace(" ", '-')
             btn = [[InlineKeyboardButton(' ɢᴇᴛ ғɪʟᴇs ', url=f"https://telegram.me/{temp.U_NAME}?start=getfile-{search_movie}")]]
-
             if resized_poster:
                 await bot.send_photo(
                     chat_id=MOVIE_UPDATE_CHANNEL,
