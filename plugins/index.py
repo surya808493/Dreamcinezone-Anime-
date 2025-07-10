@@ -219,8 +219,7 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                 eta = (total_messages - progress) / BATCH_SIZE * avg_batch_time
                 progress_bar = get_progress_bar(int(percentage))
                 await msg.edit(
-                    f"📊 Indexing Progress\n"
-                    f"📦 Batch {batch + 1}/{batches}\n"
+                    f"📊 Indexing Progress 📦 Batch {batch + 1}/{batches}\n"
                     f"{progress_bar} <code>{percentage:.1f}%</code>\n\n"
                     f"Total Messages: <code>{total_messages}</code>\n"
 

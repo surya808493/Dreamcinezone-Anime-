@@ -75,8 +75,9 @@ async def send_msg(bot, filename, caption):
             if lang.lower() in caption.lower():
                 language += f"{lang}, "
         language = language[:-2] if language else "No idea 😄"
+        tag = media_tag(filename, caption)
         ott_platform = extract_ott_platform(filename + " " + caption)           
-        filename = re.sub(r"[()\[\]{}:;'\-!,.?]", "", filename)
+        filename = re.sub(r"[()\[\]{}:;'\-!,.?_\"]", " ", filename)  
         filename = re.sub(r"\s+", " ", filename).strip()
         rating = "N/A"
         resized_poster = None
@@ -89,7 +90,7 @@ async def send_msg(bot, filename, caption):
                     resized_poster = await fetch_image(poster_url)            
             text = (
                 f"📥 𝗡𝗘𝗪 𝗙𝗜𝗟𝗘 𝗔𝗗𝗗𝗘𝗗 📥\n\n"
-                f"🎬 𝗧𝗶𝘁𝗹𝗲 : ✨ <code>{filename}</code>\n"
+                f"🎬 𝗧𝗶𝘁𝗹𝗲 : ✨ <code>{filename}</code> {tag}\n"
                 f"─┉─•✦•─┉─\n"
                 f"🛡️ 𝗢𝗧𝗧 : <b>{ott_platform}</b>\n"
                 f"📽️ 𝗤𝘂𝗮𝗹𝗶𝘁𝘆 : <b>{quality}</b>\n"
@@ -140,3 +141,10 @@ def extract_ott_platform(text):
     if found:
         return " | ".join(found)
     return "Not Sure 😄"
+
+def media_tag(filename, caption):
+    text = f"{filename} {caption}".lower()
+    pattern = r'(?:s|season)[\s\-_]*0*\d{1,2}'
+    if re.search(pattern, text, re.IGNORECASE):
+        return '#TV_SERIES'
+    return '#MOVIE'
