@@ -1,7 +1,7 @@
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid
-from info import ADMINS,MULTIPLE_DB, LOG_CHANNEL, OWNER_LNK,  MELCOW_VID
+from info import ADMINS,MULTIPLE_DB, LOG_CHANNEL, OWNER_LNK, MELCOW_PHOTO
 from database.users_chats_db import db, db2
 from database.ia_filterdb import Media, Media2, db as db_stats, db2 as db2_stats
 from utils import get_size, temp, get_settings, get_readable_time
@@ -48,29 +48,33 @@ async def save_group(bot, message):
             logging.error(f"DB error connecting group: {e}")
     else:
         settings = await get_settings(message.chat.id)
-        if settings["welcome"]:
+
+        if settings.get("welcome"):
             for u in message.new_chat_members:
-                if (temp.MELCOW).get('welcome') is not None:
+                if temp.MELCOW.get('welcome'):
                     try:
-                        await (temp.MELCOW['welcome']).delete()
+                        await temp.MELCOW['welcome'].delete()
                     except:
                         pass
-                temp.MELCOW['welcome'] = await message.reply_video(
-                                                 video=(MELCOW_VID),
-                                                 caption=(script.MELCOW_ENG.format(u.mention, message.chat.title)),
-                                                 reply_markup=InlineKeyboardMarkup(
-                                                                         [[
-                                                                           InlineKeyboardButton("📌 ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ 📌", url=OWNER_LNK)
-                                                                         ]]
-                                                 ),
-                                                 parse_mode=enums.ParseMode.HTML
-                )
-                
-        if settings["auto_delete"]:
+                try:
+                    temp.MELCOW['welcome'] = await message.reply_photo(
+                        photo=MELCOW_PHOTO,
+                        caption=script.MELCOW_ENG.format(u.mention, message.chat.title),
+                        reply_markup=InlineKeyboardMarkup([
+                                [
+                                    InlineKeyboardButton("📌 ᴄᴏɴᴛᴀᴄᴛ ꜱᴜᴘᴘᴏʀᴛ 📌", url=OWNER_LNK)
+                                ]]),parse_mode=enums.ParseMode.HTML)
+                except Exception as e:
+                    print(f"Welcome photo send failed: {e}")
+        if settings.get("auto_delete"):
             await asyncio.sleep(600)
-            await (temp.MELCOW['welcome']).delete()
-                
-
+            try:
+                if temp.MELCOW.get('welcome'):
+                    await temp.MELCOW['welcome'].delete()
+                    temp.MELCOW['welcome'] = None 
+            except:
+                pass
+               
 @Client.on_message(filters.command('leave') & filters.user(ADMINS))
 async def leave_a_chat(bot, message):
     if len(message.command) == 1:
