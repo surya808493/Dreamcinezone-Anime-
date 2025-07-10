@@ -144,7 +144,8 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
         try:
             current = temp.CURRENT
             temp.CANCEL = False
-            total_messages = lst_msg_id - current
+            total_messages = lst_msg_id
+            total_fetch = lst_msg_id - current
             if total_messages <= 0:
                 await msg.edit(
                     "🚫 No Messages To Index.",
@@ -154,9 +155,10 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
             batches = ceil(total_messages / BATCH_SIZE)
             batch_times = []
             await msg.edit(
-                f"📊 Indexing Started......\n"
-                f"📋 Total Messages: <code>{total_messages}</code>\n"
-                f"⏱️ Elapsed: <code>{get_readable_time(time.time() - start_time)}</code>",
+                f"📊 Indexing Starting......\n"
+                f"💬 Total Messages: <code>{total_messages}</code>\n"
+                f"📋 Total Fetch: <code> {total_fetch}</code>\n"
+                f"⏰ Elapsed: <code>{get_readable_time(time.time() - start_time)}</code>",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Cancel', callback_data='index_cancel')]])
             )
             for batch in range(batches):
@@ -214,15 +216,15 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                 batch_times.append(batch_time)
                 elapsed = time.time() - start_time
                 progress = current - temp.CURRENT
-                percentage = (progress / total_messages) * 100
+                percentage = (progress / total_fetch) * 100
                 avg_batch_time = sum(batch_times) / len(batch_times) if batch_times else 1
-                eta = (total_messages - progress) / BATCH_SIZE * avg_batch_time
+                eta = (total_fetch - progress) / BATCH_SIZE * avg_batch_time
                 progress_bar = get_progress_bar(int(percentage))
                 await msg.edit(
                     f"📊 Indexing Progress 📦 Batch {batch + 1}/{batches}\n"
                     f"{progress_bar} <code>{percentage:.1f}%</code>\n\n"
                     f"Total Messages: <code>{total_messages}</code>\n"
-
+                    f"Total Fetched: <code>{total_fetch}</code>\n"
                     f"Fetched: <code>{current}</code>\n"
                     f"Saved: <code>{total_files}</code>\n"
                     f"Duplicates: <code>{duplicate}</code>\n"
@@ -237,7 +239,8 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
             await msg.edit(
                 f"✅ Indexing Completed!\n"
                 f"Total Messages: <code>{total_messages}</code>\n"
-                f"Total Fetched: <code>{current}</code>\n"
+                f"Total Fetched: <code>{total_fetch}</code>\n"
+                f"Fetched: <code>{current}</code>\n"
                 f"Saved: <code>{total_files}</code>\n"
                 f"Duplicates: <code>{duplicate}</code>\n"
                 f"Deleted: <code>{deleted}</code>\n"
