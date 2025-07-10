@@ -70,7 +70,6 @@ async def check_db_size(db):
                              (now - _db_stats_cache["timestamp"] > timedelta(minutes=10))
         refresh_if_size_threshold = _db_stats_cache["primary_size"] >= 10.0
         if not cache_stale_by_time and not refresh_if_size_threshold:
-            print(f"📊 DB Size (cached): {_db_stats_cache['primary_size']:.2f} MB")
             return _db_stats_cache["primary_size"]
         stats = await db.command("dbstats")
         db_size = stats["dataSize"]
