@@ -64,32 +64,22 @@ class Media2(Document):
         collection_name = COLLECTION_NAME
 
 async def check_db_size(db):
-    """
-    Retrieves and caches the database size in MB.
-    Caches results for 10 minutes, but always refreshes if cached size is >= 10 MB.
-    """
     try:
         now = datetime.utcnow()
         cache_stale_by_time = _db_stats_cache["timestamp"] is None or \
                              (now - _db_stats_cache["timestamp"] > timedelta(minutes=10))
-        refresh_if_size_threshold = _db_stats_cache["primary_size"] >= 05.0
+        refresh_if_size_threshold = _db_stats_cache["primary_size"] >= 10.0
         if not cache_stale_by_time and not refresh_if_size_threshold:
-            print(f"📊 DB Size (cached): {_db_stats_cache['primary_size']:.2f} MB")
+           
             return _db_stats_cache["primary_size"]
 
         stats = await db.command("dbstats")
         db_size = stats["dataSize"]
         db_size_mb = db_size / (1024 * 1024) 
-        
-        # Update the cache
         _db_stats_cache["primary_size"] = db_size_mb
         _db_stats_cache["timestamp"] = now
-        
-        print(f"📊 DB Size (updated): {db_size_mb:.2f} MB")
         return db_size_mb
-        
     except Exception as e:
-        # Consider using a proper logging framework instead of print
         print(f"Error Checking Database Size: {e}")
         return 0
     
