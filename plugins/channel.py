@@ -2,14 +2,37 @@
 import re
 from plugins.Dreamxfutures.Imdbposter import get_movie_details, fetch_image
 from database.users_chats_db import db
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from info import CHANNELS, MOVIE_UPDATE_CHANNEL
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from utils import temp
 
+
 CAPTION_LANGUAGES = ["Bhojpuri", "Hindi", "Bengali", "Tamil", "English", "Bangla", "Telugu", "Malayalam", "Kannada", "Marathi", "Punjabi", "Bengoli", "Gujrati", "Korean", "Gujarati", "Spanish", "French", "German", "Chinese", "Arabic", "Portuguese", "Russian", "Japanese", "Odia", "Assamese", "Urdu"]
 
+OTT_PLATFORMS = {
+    "nf": "Netflix",
+    "netflix": "Netflix",
+    "sonyliv": "SonyLiv",
+    "sony": "SonyLiv",
+    "sliv": "SonyLiv",
+    "amzn": "Amazon Prime Video",
+    "prime": "Amazon Prime Video",
+    "primevideo": "Amazon Prime Video",
+    "hotstar": "Disney+ Hotstar",
+    "zee5": "Zee5",
+    "jio": "JioHotstar",
+    "jhs": "JioHotstar",
+    "aha": "Aha",
+    "hbo": "HBO Max",
+    "paramount": "Paramount+",
+    "apple": "Apple TV+",
+    "hoichoi": "Hoichoi",
+    "sunnxt": "Sun NXT",
+    "viki": "Viki",
+    
+}
 media_filter = filters.document | filters.video | filters.audio
 
 @Client.on_message(filters.chat(CHANNELS) & media_filter)
@@ -31,9 +54,6 @@ async def media(bot, message):
         print(f"Error In Movie Update - {e}")
         pass
 
-def clean_mentions_links(text: str) -> str:
-    return re.sub(r'(\@\w+(\.\w+)?|\bwww\.[^\s\]\)]+|\([\@^\)]+\)|\[[\@^\]]+\])', '', text).strip()
-
 async def send_msg(bot, filename, caption): 
     try:
         filename = clean_mentions_links(filename).title()
@@ -45,7 +65,7 @@ async def send_msg(bot, filename, caption):
         season = re.search(pattern, caption) or re.search(pattern, filename)
         season = season.group(1) if season else None 
 
-        if year:
+        if year and year in filename:
             filename = filename[: filename.find(year) + 4]  
         elif season and season in filename:
             filename = filename[: filename.find(season) + 1]
@@ -58,9 +78,9 @@ async def send_msg(bot, filename, caption):
         for lang in possible_languages:
             if lang.lower() in caption.lower():
                 language += f"{lang}, "
-        language = language[:-2] if language else "Not idea 😄"
-
-        filename = re.sub(r"[\(\)\[\]\{\}:;'\-!]", "", filename)
+        language = language[:-2] if language else "No idea 😄"
+        ott_platform = extract_ott_platform(filename + " " + caption)
+        filename = re.sub(r"[()\[\]{}:;'\-!,.?]", "", filename)
         filename = re.sub(r"\s+", " ", filename).strip()
         
         rating = "N/A"
@@ -72,23 +92,43 @@ async def send_msg(bot, filename, caption):
                 rating = imdb.get("rating", "N/A")
                 if poster_url:
                     resized_poster = await fetch_image(poster_url)
-
-            text = "#𝑵𝒆𝒘_𝑭𝒊𝒍𝒆_𝑨𝒅𝒅𝒆𝒅 ✅\n\n✨ `{}` ⿻\n\nғᴏʀᴍᴀᴛ: {}\n\nᴀᴜᴅɪᴏ: {}\n\nʀᴀᴛɪɴɢ: {} /10"
-            text = text.format(filename, quality, language, rating)
-
+            text = (
+                f"📥 𝗡𝗘𝗪 𝗙𝗜𝗟𝗘 𝗔𝗗𝗗𝗘𝗗 📥\n\n"
+                f"🎬 𝗧𝗶𝘁𝗹𝗲 : ✨ <code>{filename}</code>\n"
+                f"─┉─•✦•─┉─\n"
+                f"🛡️ 𝗢𝗧𝗧 : <b>{ott_platform}</b>\n"
+                f"📽️ 𝗤𝘂𝗮𝗹𝗶𝘁𝘆 : <b>{quality}</b>\n"
+                f"🎧 𝗔𝘂𝗱𝗶𝗼  : <b>{language}</b>\n"
+                f"🌟 𝗥𝗮𝘁𝗶𝗻𝗴  : <b>{rating}</b>\n"
+                f"─┉─•✦•─┉─\n"
+                f"🔎 𝗦𝗲𝗮𝗿𝗰𝗵 → {temp.B_LINK}"
+            )
             search_movie = filename.replace(" ", '-')
             btn = [[InlineKeyboardButton(' ɢᴇᴛ ғɪʟᴇs ', url=f"https://telegram.me/{temp.U_NAME}?start=getfile-{search_movie}")]]
 
             if resized_poster:
-                await bot.send_photo(chat_id=MOVIE_UPDATE_CHANNEL, photo=resized_poster, caption=text, reply_markup=InlineKeyboardMarkup(btn))
+                await bot.send_photo(
+                    chat_id=MOVIE_UPDATE_CHANNEL,
+                    photo=resized_poster,
+                    caption=text,
+                    reply_markup=InlineKeyboardMarkup(btn),
+                    parse_mode=enums.ParseMode.HTML
+                )
             else:
-                await bot.send_message(chat_id=MOVIE_UPDATE_CHANNEL, text=text, reply_markup=InlineKeyboardMarkup(btn))
-
+                await bot.send_message(
+                    chat_id=MOVIE_UPDATE_CHANNEL,
+                    text=text,
+                    reply_markup=InlineKeyboardMarkup(btn),
+                    parse_mode=enums.ParseMode.HTML
+                )
     except Exception as e:
         print(f"Error in send_msg: {e}")
         pass
 
-async def get_qualities(text, qualities: list):
+def clean_mentions_links(text: str) -> str:
+    return re.sub(r'(\@\w+(\.\w+)?|\bwww\.[^\s\]\)]+|\([\@^\)]+\)|\[[\@^\]]+\])', '', text).strip()
+
+def get_qualities(text, qualities: list):
     """Get all Quality from text"""
     quality = []
     for q in qualities:
@@ -97,3 +137,12 @@ async def get_qualities(text, qualities: list):
     quality = ", ".join(quality)
     return quality[:-2] if quality.endswith(", ") else quality
 
+def extract_ott_platform(text):
+    text_lower = text.lower()
+    found = set()
+    for key, platform in OTT_PLATFORMS.items():
+        if key in text_lower:
+            found.add(platform)
+    if found:
+        return " | ".join(found)
+    return "Not Sure 😄"
