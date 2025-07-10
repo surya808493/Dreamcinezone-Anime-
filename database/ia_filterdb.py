@@ -97,7 +97,7 @@ async def save_file(media):
             return False, 0
         try:
             primary_db_size = await check_db_size(db)
-            if primary_db_size >= 7:  # 512 - 505 MB left
+            if primary_db_size >= 407:  # 512 - 105 MB left
                 logger.warning("Primary Database is low on space. Switching to secondary DB.")
                 saveMedia = Media2
         except Exception as e:
@@ -259,7 +259,7 @@ async def dreamxbotz_fetch_media(limit: int) -> List[dict]:
     try:
         if MULTIPLE_DB:
             db_size = await check_db_size(Media)
-            if db_size > 432:
+            if db_size > 407:
                 cursor = Media2.find().sort("$natural", -1).limit(limit)
                 files = await cursor.to_list(length=limit)
                 return files
