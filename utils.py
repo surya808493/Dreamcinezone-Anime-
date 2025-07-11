@@ -292,11 +292,15 @@ async def save_group_settings(group_id, key, value):
     current.update({key: value})
     temp.SETTINGS.update({group_id: current})
     await db.update_settings(group_id, current)
-
+    
 def clean_filename(file_name):
-    file_name = re.sub(r'http\S+', '', re.sub(r'@\w+|#\w+', '', file_name))
-    file_name = re.sub(r"(_|\-|\.|\+)", " ", file_name)
-    file_name = re.sub(r"[(){}\[\]:;'\-!]", "", file_name)
+    prefixes = ('[', '@', 'www.')
+    unwanted = {word.lower() for word in BAD_WORDS}
+    
+    file_name = ' '.join(
+        word for word in file_name.split()
+        if not (word.startswith(prefixes) or word.lower() in unwanted)
+    )
     return file_name
 
 def get_size(size):
@@ -677,7 +681,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                     cap += (
                         f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                         f"📁 [{get_size(file.file_size)}] "
-                        f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
+                        f"{clean_filename(file.file_name)}\n\n"
                         f"</a></b>"
                     )
             else:
@@ -720,7 +724,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         cap += (
                             f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                             f"📁 {get_size(file.file_size)} ▷ "
-                            f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
+                            f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
                 else:
@@ -736,7 +740,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         cap += (
                             f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                             f"📁 {get_size(file.file_size)} ▷ "
-                            f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
+                            f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
         else:
@@ -751,7 +755,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 cap += (
                     f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                     f"📁 {get_size(file.file_size)} ▷ "
-                    f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
+                    f"{clean_filename(file.file_name)}\n\n"
                     f"</a></b>"
                 )
         return cap
