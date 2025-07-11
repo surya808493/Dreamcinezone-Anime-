@@ -325,7 +325,7 @@ async def start(client, message):
             file_id = file.file_id
             files_ = await get_file_details(file_id)
             files1 = files_[0]
-            title = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), files1.file_name.split()))
+            title = ' '.join(w for w in files1.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
             size = get_size(files1.file_size)
             f_caption = files1.caption
             settings = await get_settings(int(grp_id))
@@ -337,7 +337,7 @@ async def start(client, message):
                     logger.exception(e)
                     f_caption = f_caption
             if f_caption is None:
-                f_caption = f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), files1.file_name.split()))}"
+                f_caption = f"{' '.join(w for w in files1.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))}"
             if STREAM_MODE:
                 btn = [
                     [InlineKeyboardButton('🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ / ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', callback_data=f'generate_stream_link:{file_id}')],
@@ -380,7 +380,7 @@ async def start(client, message):
 
             filetype = msg.media
             file = getattr(msg, filetype.value)
-            title = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))
+            title = ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))
             size=get_size(file.file_size)
             f_caption = f"<code>{title}</code>"
             settings = await get_settings(int(grp_id))
@@ -407,7 +407,7 @@ async def start(client, message):
         return await message.reply('ɴᴏ ꜱᴜᴄʜ ꜰɪʟᴇ ᴇxɪꜱᴛꜱ !')
     
     files = files_[0]
-    title = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), files.file_name.split()))
+    title = ' '.join(w for w in files.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
     size = get_size(files.file_size)
     f_caption = files.caption
     settings = await get_settings(int(grp_id))            
@@ -420,7 +420,7 @@ async def start(client, message):
             f_caption = f_caption
 
     if f_caption is None:
-        f_caption = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), files.file_name.split()))
+        f_caption = ' '.join(w for w in files.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
     if STREAM_MODE:
         btn = [
                     [InlineKeyboardButton('🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ / ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', callback_data=f'generate_stream_link:{file_id}')],
