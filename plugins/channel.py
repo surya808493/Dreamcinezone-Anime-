@@ -121,7 +121,7 @@ async def send_msg(bot, filename, caption):
         pass
 
 def clean_mentions_links(text: str) -> str:
-    return re.sub(r'(\@\w+(\.\w+)?|\bwww\.[^\s\]\)]+|\([\@^\)]+\)|\[[\@^\]]+\])', '', text).strip()
+    return re.sub(r'@[^ \n\r\t.,:;!?()\[\]{}<>\\/"\'=_%]+|\bwww\.[^\s\]\)]+|\([\@^]+\)|\[[\@^]+\]', '', text).strip()
 
 async def get_qualities(text, qualities: list):
     """Get all Quality from text"""
