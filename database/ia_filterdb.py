@@ -283,6 +283,7 @@ async def dreamxbotz_clean_title(filename: str, is_series: bool = False) -> str:
                 season = season_match.group(2) or season_match.group(3) or season_match.group(4)
                 title = re.sub(r"(?:@[^ \n\r\t.,:;!?()\[\]{}<>\\\/\"'=_%]+|[._\-\[\]@()]+)", " ", title).strip().title()
                 return f"{title} S{int(season):02}"
+        title = filename
         return re.sub(r"(?:@[^ \n\r\t.,:;!?()\[\]{}<>\\\/\"'=_%]+|[._\-\[\]@()]+)", " ", title).strip().title()
     except Exception as e:
         logger.error(f"Error in truncate_title: {e}")
