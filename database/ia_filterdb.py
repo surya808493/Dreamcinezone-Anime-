@@ -86,7 +86,7 @@ async def check_db_size(db):
 async def save_file(media):
     """Save file in database"""
     file_id, file_ref = unpack_new_file_id(media.file_id)
-    file_name = re.sub(r"@\w+|(_|\-|\.|\+|\#|\$|%|\^|&|\*|\(|\)|!|~|`|,|;|:|\"|\'|\?|/|<|>|\[|\]|\{|\}|=|\||\\)", " ", str(media.file_name))
+    file_name = re.sub(r"[_\-\.#+$%^&*()!~`,;:\"'?/<>\[\]{}=|\\]", " ", str(media.file_name))
     file_name = re.sub(r"\s+", " ", file_name)
     
     saveMedia = Media
@@ -111,7 +111,7 @@ async def save_file(media):
             file_size=media.file_size,
             file_type=media.file_type,
             mime_type=media.mime_type,
-            caption=media.caption.html if media.caption else None,
+            caption=media.caption.html if media.caption and INDEX_CAPTION else None,
         )
     except ValidationError as e:
         logger.exception(f'Validation error while saving file: {e}')
@@ -275,15 +275,16 @@ async def dreamxbotz_clean_title(filename: str, is_series: bool = False) -> str:
         year_match = re.search(r"^(.*?(\d{4}|\(\d{4}\)))", filename, re.IGNORECASE)
         if year_match:
             title = year_match.group(1).replace('(', '').replace(')', '') 
-            return re.sub(r"[._\-\[\]@()]+", " ", title).strip().title()
+            return re.sub(r"(?:@[^ \n\r\t.,:;!?()\[\]{}<>\\\/\"'=_%]+|[._\-\[\]@()]+)", " ", title).strip().title()
         if is_series:
             season_match = re.search(r"(.*?)(?:S(\d{1,2})|Season\s*(\d+)|Season(\d+))(?:\s*Combined)?", filename, re.IGNORECASE)
             if season_match:
                 title = season_match.group(1).strip()
                 season = season_match.group(2) or season_match.group(3) or season_match.group(4)
-                title = re.sub(r"[._\-\[\]@()]+", " ", title).strip().title()
+                title = re.sub(r"(?:@[^ \n\r\t.,:;!?()\[\]{}<>\\\/\"'=_%]+|[._\-\[\]@()]+)", " ", title).strip().title()
                 return f"{title} S{int(season):02}"
-        return re.sub(r"[._\-\[\]@()]+", " ", filename).strip().title()
+        title = filename
+        return re.sub(r"(?:@[^ \n\r\t.,:;!?()\[\]{}<>\\\/\"'=_%]+|[._\-\[\]@()]+)", " ", title).strip().title()
     except Exception as e:
         logger.error(f"Error in truncate_title: {e}")
         return filename
@@ -295,8 +296,7 @@ async def dreamxbotz_get_movies(limit: int = 20) -> List[str]:
         pattern = r"(?:s\d{1,2}|season\s*\d+|season\d+)(?:\s*combined)?(?:e\d{1,2}|episode\s*\d+)?\b"
         for file in cursor:
             file_name = getattr(file, "file_name", "")
-            caption = getattr(file, "caption", "")
-            if not (re.search(pattern, file_name, re.IGNORECASE) or re.search(pattern, caption, re.IGNORECASE)):
+            if not re.search(pattern, file_name, re.IGNORECASE):
                 title = await dreamxbotz_clean_title(file_name)
                 results.add(title)
             if len(results) >= limit:
@@ -313,12 +313,7 @@ async def dreamxbotz_get_series(limit: int = 30) -> Dict[str, List[int]]:
         pattern = r"(.*?)(?:S(\d{1,2})|Season\s*(\d+)|Season(\d+))(?:\s*Combined)?(?:E(\d{1,2})|Episode\s*(\d+))?\b"
         for file in cursor:
             file_name = getattr(file, "file_name", "")
-            caption = getattr(file, "caption", "")
-            match = None
-            if file_name:
-                match = re.search(pattern, file_name, re.IGNORECASE)
-            if not match and caption:
-                match = re.search(pattern, caption, re.IGNORECASE)
+            match = re.search(pattern, file_name, re.IGNORECASE)
             if match:
                 title = await dreamxbotz_clean_title(match.group(1), is_series=True)
                 season = int(match.group(2) or match.group(3) or match.group(4))
