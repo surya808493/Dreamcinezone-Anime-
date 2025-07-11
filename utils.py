@@ -677,7 +677,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                     cap += (
                         f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                         f"📁 [{get_size(file.file_size)}] "
-                        f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n"
+                        f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
                         f"</a></b>"
                     )
             else:
@@ -720,7 +720,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         cap += (
                             f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                             f"📁 {get_size(file.file_size)} ▷ "
-                            f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n"
+                            f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
                             f"</a></b>"
                         )
                 else:
@@ -736,7 +736,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         cap += (
                             f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                             f"📁 {get_size(file.file_size)} ▷ "
-                            f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n"
+                            f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
                             f"</a></b>"
                         )
         else:
@@ -751,7 +751,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 cap += (
                     f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file.file_id}'>"
                     f"📁 {get_size(file.file_size)} ▷ "
-                    f"{' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@') and not x.startswith('www.'), file.file_name.split()))}\n\n"
+                    f"{' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n"
                     f"</a></b>"
                 )
         return cap
