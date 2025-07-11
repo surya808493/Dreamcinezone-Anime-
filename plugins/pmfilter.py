@@ -13,7 +13,7 @@ from info import *
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, WebAppInfo
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid, ChatAdminRequired
-from utils import get_size, is_subscribed,is_req_subscribed, group_setting_buttons, get_poster, temp, get_settings, save_group_settings, get_cap, imdb, is_check_admin, extract_request_content, log_error
+from utils import get_size, is_subscribed,is_req_subscribed, group_setting_buttons, get_poster, temp, get_settings, save_group_settings, get_cap, imdb, is_check_admin, extract_request_content, log_error, clean_filename
 from fuzzywuzzy import process
 from database.users_chats_db import db
 from database.config_db import mdb
@@ -164,7 +164,7 @@ async def next_page(bot, query):
     if settings['button']:
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS)), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -352,7 +352,7 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
     if settings["button"]:
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS)), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -482,7 +482,7 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
     if settings["button"]:
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS)), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -635,7 +635,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     if settings["button"]:
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS)), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -1745,7 +1745,7 @@ async def auto_filter(client, msg, spoll=False):
     if settings["button"]:
         btn = [
             [
-                InlineKeyboardButton( text=f"[{get_size(file.file_size)}] " + ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS)), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton( text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -1838,7 +1838,7 @@ async def auto_filter(client, msg, spoll=False):
         if not settings["button"]:
             cap+="\n\n<b>🧾 <u>Your Requested Files Are Here</u> 👇</b>"
             for file in files:
-                cap += f"<b>\n<a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n</a></b>"
+                cap += f"<b>\n<a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {clean_filename(file.file_name)}\n</a></b>"
     else:
         if settings["button"]:
             cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
@@ -1846,7 +1846,7 @@ async def auto_filter(client, msg, spoll=False):
             cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
             
             for file in files:
-                cap += f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))}\n\n</a></b>"
+                cap += f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {clean_filename(file.file_name)}\n\n</a></b>"
                 
     if imdb and imdb.get('poster'):
         try:

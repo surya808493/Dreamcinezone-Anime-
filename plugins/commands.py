@@ -18,7 +18,7 @@ from pyrogram.types import *
 from database.ia_filterdb import Media, Media2, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from info import *
-from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error
+from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename
 import traceback
 
 
@@ -325,7 +325,7 @@ async def start(client, message):
             file_id = file.file_id
             files_ = await get_file_details(file_id)
             files1 = files_[0]
-            title = ' '.join(w for w in files1.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
+            title = clean_filename(files1.file_name)
             size = get_size(files1.file_size)
             f_caption = files1.caption
             settings = await get_settings(int(grp_id))
@@ -337,7 +337,7 @@ async def start(client, message):
                     logger.exception(e)
                     f_caption = f_caption
             if f_caption is None:
-                f_caption = f"{' '.join(w for w in files1.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))}"
+                f_caption = f"{clean_filename(files1.file_name)}"
             if STREAM_MODE:
                 btn = [
                     [InlineKeyboardButton('🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ / ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', callback_data=f'generate_stream_link:{file_id}')],
@@ -380,7 +380,7 @@ async def start(client, message):
 
             filetype = msg.media
             file = getattr(msg, filetype.value)
-            title = ' '.join(w for w in file.file_name.split() if not (w.startswith('[', '@', 'www.') or w.lower() in BAD_WORDS))
+            title = clean_filename(file.file_name)
             size=get_size(file.file_size)
             f_caption = f"<code>{title}</code>"
             settings = await get_settings(int(grp_id))
@@ -407,7 +407,7 @@ async def start(client, message):
         return await message.reply('ɴᴏ ꜱᴜᴄʜ ꜰɪʟᴇ ᴇxɪꜱᴛꜱ !')
     
     files = files_[0]
-    title = ' '.join(w for w in files.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
+    title = clean_filename(files.file_name)
     size = get_size(files.file_size)
     f_caption = files.caption
     settings = await get_settings(int(grp_id))            
@@ -420,7 +420,7 @@ async def start(client, message):
             f_caption = f_caption
 
     if f_caption is None:
-        f_caption = ' '.join(w for w in files.file_name.split() if not (w.startswith(('[', '@', 'www.')) or w.lower() in BAD_WORDS))
+        f_caption = clean_filename(files.file_name)
     if STREAM_MODE:
         btn = [
                     [InlineKeyboardButton('🚀 ꜰᴀꜱᴛ ᴅᴏᴡɴʟᴏᴀᴅ / ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ 🖥️', callback_data=f'generate_stream_link:{file_id}')],
