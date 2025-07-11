@@ -13,11 +13,9 @@ from info import *
 from utils import get_settings, save_group_settings
 from datetime import datetime, timedelta
 import logging
-logging.basicConfig(
-    level=logging.DEBUG,  # You can also use logging.INFO for less verbosity
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-)
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 #---------------------------------------------------------
 
 # Global cache for DB size
