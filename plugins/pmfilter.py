@@ -74,7 +74,7 @@ async def give_filter(client, message):
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔍 ᴊᴏɪɴ ᴀɴᴅ ꜱᴇᴀʀᴄʜ ʜᴇʀᴇ 🔎", url=GRP_LNK)]])
         )
 
-@Client.on_message(filters.private & filters.text & filters.incoming)
+@Client.on_message(filters.private & filters.text & filters.incoming & ~filters.regex(r"^/")) #fixed some cmd not working like /myplan in pm
 async def pm_text(bot, message):
     bot_id = bot.me.id
     content = message.text
@@ -85,7 +85,7 @@ async def pm_text(bot, message):
             await message.react(emoji=random.choice(REACTIONS), big=True)
         except Exception:
             await message.react(emoji="⚡️", big=True)
-    if content.startswith(("/", "#")):
+    if content.startswith(("#")):
         return
     try:
         await mdb.update_top_messages(user_id, content)
@@ -1513,7 +1513,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 reply_markup=reply_markup,
             )
             await query.message.edit_caption(
-                caption=script.DISCLAIMER_PREMIUM_TXT,
+                caption=script.BPREMIUM_TXT,
                 reply_markup=reply_markup,
                 parse_mode=enums.ParseMode.HTML
             )
