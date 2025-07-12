@@ -227,8 +227,9 @@ async def start(client, message):
     except Exception:
         pre, grp_id, file_id = "", 0, data
 
-    try:
-        if not await db.has_premium_access(message.from_user.id):
+   
+    if not await db.has_premium_access(message.from_user.id):
+        try:
             settings = await get_settings(int(data.split("_", 2)[1]))
             fsub_channels = settings.get('fsub', AUTH_CHANNELS) if settings else AUTH_CHANNELS
             btn = []
@@ -267,9 +268,9 @@ async def start(client, message):
                         parse_mode=enums.ParseMode.HTML
                     )
                     return
-    except Exception as e:
-        await log_error(client, f"Got Error In Force Subscription Function.\n\nError - {repr(e)}")
-        print(f"Error In Fsub :- {repr(e)}")    
+        except Exception as e:
+            await log_error(client, f"Got Error In Force Subscription Function.\n\nError - {repr(e)}")
+            print(f"Error In Fsub :- {repr(e)}")    
 
     
     user_id = m.from_user.id

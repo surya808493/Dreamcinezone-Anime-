@@ -164,7 +164,7 @@ async def next_page(bot, query):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"🔗 {get_size(file.file_size)} ≽ " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -352,7 +352,7 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"🔗 {get_size(file.file_size)} ≽ " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -482,7 +482,7 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"🔗 {get_size(file.file_size)} ≽ " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -635,7 +635,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton(text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton(text=f"🔗 {get_size(file.file_size)} ≽ " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -1745,7 +1745,7 @@ async def auto_filter(client, msg, spoll=False):
     if settings.get('button'):
         btn = [
             [
-                InlineKeyboardButton( text=f"[{get_size(file.file_size)}] " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
+                InlineKeyboardButton( text=f"🔗 {get_size(file.file_size)} ≽ " + clean_filename(file.file_name), callback_data=f'file#{file.file_id}'),
             ]
             for file in files
         ]
@@ -1841,9 +1841,9 @@ async def auto_filter(client, msg, spoll=False):
                 cap += f"<b>\n<a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {clean_filename(file.file_name)}\n</a></b>"
     else:
         if settings.get('button'):
-            cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
+            cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
         else:
-            cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
+            cap = f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {message.from_user.mention}\n⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'} \n\n🧾 <u>Your Requested Files Are Here</u> 👇 \n\n</b>"
             
             for file in files:
                 cap += f"<b><a href='https://telegram.me/{temp.U_NAME}?start=file_{message.chat.id}_{file.file_id}'> 📁 {get_size(file.file_size)} ▷ {clean_filename(file.file_name)}\n\n</a></b>"
@@ -1879,9 +1879,7 @@ async def auto_filter(client, msg, spoll=False):
                 await message.delete()
         except Exception as e:
             logger.exception(e)
-            m=await message.reply_text("🔎") 
             dxb = await message.reply_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
-            await m.delete()
             try:
                 if settings['auto_delete']:
                     await asyncio.sleep(DELETE_TIME)
