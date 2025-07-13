@@ -22,7 +22,6 @@ from utils import get_settings, save_group_settings, is_subscribed, is_req_subsc
 import traceback
 
 
-# Set up logging
 logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
@@ -484,7 +483,7 @@ async def channel_info(bot, message):
 async def log_file(bot, message):
     """Send log file"""
     try:
-        await message.reply_document('TELEGRAM BOT.LOG')
+        await message.reply_document('DreamXlogs.txt', caption="📑 **ʟᴏɢꜱ**")
     except Exception as e:
         await message.reply(str(e))
 
