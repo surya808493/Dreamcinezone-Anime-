@@ -47,4 +47,4 @@ telegraph==2.2.0
 gTTS==2.3.1
 
 # Git-based Packages
-git+https://github.com/DreamXBotz/cinemagoer.git
+git+https://github.com/Joelkb/cinemagoer

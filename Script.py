@@ -215,6 +215,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 </b><a href={poster_url}>📥</a><a href={imdb_url}>New {tag} Added</a></b>
 
 ✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
+
 ─┉─•✦•─┉─
 🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 📺 ᴏᴛᴛ        : <b>{ott}</b>
