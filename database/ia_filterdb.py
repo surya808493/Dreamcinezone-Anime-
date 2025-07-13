@@ -61,7 +61,7 @@ class Media2(Document):
         indexes = ('$file_name', )
         collection_name = COLLECTION_NAME
 
-async def check_db_size(db): #fixed db switch erorr
+async def check_db_size(db):
     try:
         now = datetime.utcnow()
         cache_stale_by_time = _db_stats_cache["timestamp"] is None or \
@@ -72,11 +72,8 @@ async def check_db_size(db): #fixed db switch erorr
             return _db_stats_cache["primary_size"]
 
         stats = await db.command("dbstats")
-        db_logical_size = stats["dataSize"]
-        db_index_size = stats["indexSize"]
-        db_logical_size_mb = db_logical_size / (1024 * 1024)
-        db_index_size_mb = db_index_size / (1024 * 1024) 
-        db_size_mb = db_logical_size_mb + db_index_size_mb
+        db_size = stats["dataSize"]
+        db_size_mb = db_size / (1024 * 1024) 
         _db_stats_cache["primary_size"] = db_size_mb
         _db_stats_cache["timestamp"] = now
         return db_size_mb
@@ -85,57 +82,48 @@ async def check_db_size(db): #fixed db switch erorr
         return 0
     
 async def save_file(media):
-    """Save file in database, with detailed logging."""
+    """Save file in database"""
     file_id, file_ref = unpack_new_file_id(media.file_id)
-    # Clean filename
-    file_name = re.sub(r"[_\-\.#+$%^&*()!~`,;:\"'?/<>\[\]{}=|\\]", " ",
-                       str(media.file_name))
-    file_name = re.sub(r"\s+", " ", file_name).strip()
+    file_name = re.sub(r"[_\-\.#+$%^&*()!~`,;:\"'?/<>\[\]{}=|\\]", " ", str(media.file_name))
+    file_name = re.sub(r"\s+", " ", file_name)
+    
     saveMedia = Media
-    target_db = "Primary"
-
-    # 1) Check existence in primary DB
     if MULTIPLE_DB:
-
+        exists = await Media.count_documents({'file_id': file_id}, limit=1)
+        if exists:
+            logger.warning(f'{file_name} is already saved in primary database!')
+            return False, 0
         try:
-            exists = await Media.count_documents({'file_id': file_id}, limit=1)
-            if exists:
-                logger.info(f"[SKIP] '{file_name}' already in Primary DB.")
-                return False, 0
-            
             primary_db_size = await check_db_size(db)
-            if primary_db_size >= 407:
+            if primary_db_size >= 407:  # 512 - 105 MB left
+                logger.warning("Primary Database is low on space. Switching to secondary DB.")
                 saveMedia = Media2
-                target_db = "Secondary"
-                logger.warning("Switching to Secondary DB due to size threshold.")
         except Exception as e:
-            logger.error("Error during MULTIPLE_DB check; defaulting to primary DB.", exc_info=e)
-    # 2) Build the document
+            logger.error(f"Error checking primary DB size: {e}")
+            saveMedia = Media
     try:
-        record = saveMedia(
+        file = saveMedia(
             file_id=file_id,
             file_ref=file_ref,
             file_name=file_name,
             file_size=media.file_size,
             file_type=media.file_type,
             mime_type=media.mime_type,
-            caption=(media.caption.html if media.caption and INDEX_CAPTION else None),
+            caption=media.caption.html if media.caption and INDEX_CAPTION else None,
         )
     except ValidationError as e:
-        logger.exception(f"[VALIDATION ERROR] '{file_name}' → {e}")
+        logger.exception(f'Validation error while saving file: {e}')
         return False, 2
-    # 3) Commit to DB
-    try:
-        await record.commit()
-    except DuplicateKeyError:
-        logger.info(f"[SKIP] DuplicateKey: '{file_name}' already exists in {target_db} DB.")
-        return False, 0
-    except Exception as e:
-        logger.exception(f"[ERROR] Failed commit of '{file_name}' to {target_db} DB.", exc_info=e)
-        return False, 3
-    # 4) Success
-    logger.info(f"[SUCCESS] '{file_name}' saved to {target_db} DB.")
-    return True, 1
+    else:
+        try:
+            await file.commit()
+        except DuplicateKeyError:
+            logger.warning(f'{file_name} is already saved in selected database')
+            return False, 0
+        else:
+            logger.info(f'{file_name} saved successfully in {"secondary" if saveMedia==Media2 else "primary"} database')
+            return True, 1
+
 
 async def get_search_results(chat_id, query, file_type=None, max_results=10, offset=0, filter=False):
     if chat_id is not None:
