@@ -178,7 +178,7 @@ async def send_msg(bot, filename, caption):
                 parse_mode=enums.ParseMode.HTML
             )
             
-        elif LINK_PREVIEW:
+        elif resized_poster and LINK_PREVIEW:
             await bot.send_message(
                 chat_id=MOVIE_UPDATE_CHANNEL,
                 text=text,
