@@ -53,7 +53,7 @@ async def broadcast_users(bot, message):
                 temp.B_USERS_CANCEL = False
                 await dreamxbotz_sts.edit(f"Users broadcast Cancelled!\nCompleted in {time_taken}\n\nTotal Users: <code>{total_users}</code>\nCompleted: <code>{done} / {total_users}</code>\nSuccess: <code>{success}</code>\nBʟᴏᴄᴋᴇᴅ: {blocked}\nDᴇʟᴇᴛᴇᴅ: {deleted}")
                 return
-            sts = await users_broadcast(int(user['id']), b_msg, is_pin)
+            _, sts = await users_broadcast(int(user['id']), b_msg, is_pin)
             if sts == 'Success':
                 success += 1
             if sts == "Blocked":
