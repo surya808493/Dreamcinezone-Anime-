@@ -41,7 +41,7 @@ class script(object):
 ├⍟ Lᴀɴɢᴜᴀɢᴇ : <a href='https://www.python.org/download/releases/3.0/'>ᴘʏᴛʜᴏɴ 𝟹</a> 
 ├⍟ Dᴀᴛᴀʙᴀsᴇ : <a href='https://www.mongodb.com/'>ᴍᴏɴɢᴏ ᴅʙ</a> 
 ├⍟ Bᴏᴛ Sᴇʀᴠᴇʀ : <a href='https://heroku.com/'>ʜᴇʀᴏᴋᴜ</a> 
-├⍟ Bᴜɪʟᴅ Sᴛᴀᴛᴜs : ᴠ1.3 [ ꜱᴛᴀʙʟᴇ ]
+├⍟ Bᴜɪʟᴅ Sᴛᴀᴛᴜs : ᴠ1.4 [ ꜱᴛᴀʙʟᴇ ]
 ╰───────────────⍟</b>"""
     RESTART_TXT = """
 <b>{} Bᴏᴛ Rᴇsᴛᴀʀᴛᴇᴅ !
@@ -49,7 +49,7 @@ class script(object):
 📅 Dᴀᴛᴇ : <code>{}</code>
 ⏰ Tɪᴍᴇ : <code>{}</code>
 🌐 Tɪᴍᴇᴢᴏɴᴇ : <code>Asia/Kolkata</code>
-🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code> v1.3 [ Sᴛᴀʙʟᴇ ]</code>
+🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code> v1.4 [ Sᴛᴀʙʟᴇ ]</code>
 </b>"""
 
     CHANNELS = """
@@ -209,6 +209,24 @@ Nᴀᴍᴇ : {}
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
     CAPTION = """<b><a href="https://t.me/dreamxbotz">{file_name}</a></b>\n\n<b>⚜️ Powered By : <a href="https://t.me/dreamxbotz">[ ᴅʀᴇᴀᴍxʙᴏᴛᴢ ]</a></b>"""
+
+    
+    MOVIE_UPDATE_NOTIFY_TXT = """
+</b><a href={poster_url}>📥</a><a href={imdb_url}>New {tag} Added</a></b>
+
+✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
+─┉─•✦•─┉─
+🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
+📺 ᴏᴛᴛ        : <b>{ott}</b>
+🎞️ ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
+🎧 ᴀᴜᴅɪᴏ    : <b>{language}</b>
+🔥 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
+─┉─•✦•─┉─
+
+
+🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
+"""
+
 
     IMDB_TEMPLATE_TXT = """
 <b>🏷 Title</b>: <a href={url}>{title}</a>
