@@ -118,7 +118,6 @@ async def send_msg(bot, filename, caption):
         return
 
     if not is_new:
-        logger.info("'%s' already processed; skipping", filename)
         return
     
     resized_poster = None
@@ -129,7 +128,6 @@ async def send_msg(bot, filename, caption):
     imdb_url = None
     try:
         details = await get_movie_details(filename)
-        print (f"IMDB details for {filename}: {details}")
         if details:
             language = language or details.get("language") or "N/A"
             year = year or details.get("year")
