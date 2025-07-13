@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from utils import temp
 from pymongo.errors import PyMongoError
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 # Constants
 CAPTION_LANGUAGES = {
@@ -62,15 +62,17 @@ async def media(bot, message):
         if media is not None:
             break
     else:
-        logger.debug("No media found in message %s", message.message_id)
         return
+
     media.file_type = file_type
     media.caption = message.caption
-    logger.info("Received %s from %s", file_type, message.chat.id)
+
+
     success, _ = await save_file(media)
     if not success:
         logger.info("save_file returned False, skipping update for %s", media.file_name)
         return
+
     try:
         if await db.movie_update_status(bot.me.id):
             await send_msg(bot, filename=media.file_name, caption=media.caption or "")
@@ -80,9 +82,13 @@ async def media(bot, message):
         logger.exception("Error In Movie Update for file %s", media.file_name)
 
 async def send_msg(bot, filename, caption):
+    """Parse and send the enriched movie info."""
+
+    # 1) Clean and normalize
     filename = clean_mentions_links(filename).title()
     caption_clean = clean_mentions_links(caption or "").lower()
     filename_lower = filename.lower()
+    # 2) Extract year & season
     year_match = re.search(r"\b(19|20)\d{2}\b", caption_clean)
     year = year_match.group(0) if year_match else None
     season_match = (re.search(r"(?i)(?:s|season)0*(\d{1,2})", caption_clean)
@@ -93,6 +99,8 @@ async def send_msg(bot, filename, caption):
         filename = filename[:filename.find(year) + 4]
     elif season and season in filename.lower():
         filename = filename[:filename.lower().find(season) + len(season)]
+
+    # 3) Quality & language & tags
     quality = await get_qualities(caption_clean, QUALITIES) or await get_qualities(filename_lower, QUALITIES) or "N/A"
     language_set = ({CAPTION_LANGUAGES[key] for key in CAPTION_LANGUAGES if key.lower() in caption_clean}
                     or {CAPTION_LANGUAGES[key] for key in CAPTION_LANGUAGES if key.lower() in filename_lower}
@@ -100,22 +108,27 @@ async def send_msg(bot, filename, caption):
     language = ", ".join(language_set) if language_set else "N/A"
     tag = "#SERIES" if season else "#MOVIE"
     ott_platform = extract_ott_platform(f"{filename} {caption_clean}")
+
+    # 4) Clean filename spacing
     filename = re.sub(r"[()\[\]{}:;'\-!,.?_]", " ", filename)
     filename = re.sub(r"\s+", " ", filename).strip()
+
+    # 5) Attempt to mark as “seen” in the DB (upsert)
     try:
         result = await db.filename_col.update_one(
             {"_id": filename},
             {"$setOnInsert": {"_id": filename}},
             upsert=True
         )
-        print(result)
         is_new = result.upserted_id is not None
     except PyMongoError as db_err:
         logger.error("DB insert error for '%s': %s", filename, db_err, exc_info=True)
         return
+
     if not is_new:
         logger.info("'%s' already processed; skipping", filename)
         return
+    
     resized_poster = None
     genres = None
     poster_url = None
@@ -124,6 +137,7 @@ async def send_msg(bot, filename, caption):
     imdb_url = None
     try:
         details = await get_movie_details(filename)
+        print (f"IMDB details for {filename}: {details}")
         if details:
             language = language or details.get("language") or "N/A"
             year = year or details.get("year")
@@ -135,14 +149,20 @@ async def send_msg(bot, filename, caption):
             rating = details.get("rating", "N/A")
             poster_url = details.get("poster_url", None)
             imdb_url = details.get("url", None)
+
     except Exception as imdb_err:
         logger.warning("IMDB fetch error for '%s': %s", filename, imdb_err, exc_info=True)
 
+    # 7) Download/rescale poster
+    
+    
     if poster_url:
         try:
             resized_poster = await fetch_image(poster_url)
         except Exception as img_err:
             logger.warning("Image fetch error for '%s': %s", poster_url, img_err, exc_info=True)
+
+    # 8) Build the message
     text = script.MOVIE_UPDATE_NOTIFY_TXT.format(
                poster_url=poster_url,
                imdb_url=imdb_url,
@@ -156,12 +176,16 @@ async def send_msg(bot, filename, caption):
                search_link=temp.B_LINK
         )
 
+
+
     buttons = InlineKeyboardMarkup([[
         InlineKeyboardButton(
             'ɢᴇᴛ ғɪʟᴇs',
             url=f"https://t.me/{temp.U_NAME}?start=getfile-{filename.replace(' ', '-')}"
         )
     ]])
+
+    # 9) Send
     try:
         if resized_poster and not LINK_PREVIEW:
             await bot.send_photo(
@@ -189,6 +213,7 @@ async def send_msg(bot, filename, caption):
                 reply_markup=buttons,
                 parse_mode=enums.ParseMode.HTML
             )
+
     except Exception as send_err:
         logger.exception("Failed to send message for '%s': %s", filename, send_err)
 
@@ -206,7 +231,7 @@ async def get_qualities(text: str, qualities: list) -> str:
 def extract_ott_platform(text: str) -> str:
     text = text.lower()
     found = {plat for key, plat in OTT_PLATFORMS.items() if key in text}
-    return " | ".join(found) if found else "Not Sure 😄"
+    return " | ".join(found) if found else "N/A"
 
 def media_tag(filename: str, caption: str) -> str:
     if re.search(r'(?:s|season)[\s\-_]*\d+', f"{filename} {caption}", flags=re.IGNORECASE):
