@@ -13,7 +13,7 @@ def list_to_str(lst):
         return ", ".join(map(str, lst))
     return ""
 
-async def fetch_image(url, size=(860, 1200)): #fixed square img
+async def fetch_image(url, size=(720, 720)):
     if not DREAMXBOTZ_IMAGE_FETCH:
         print("Image fetching is disabled.")
         return None
@@ -69,7 +69,6 @@ async def get_movie_details(query, id=False, file=None):
         else:
             movieid = query
         movie = ia.get_movie(movieid)
-        ia.update(movie, info=['main', 'vote details']) # or else you won't get ratings
         if movie.get("original air date"):
             date = movie["original air date"]
         elif movie.get("year"):
