@@ -585,7 +585,6 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
 async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
     _, season_tag, key = query.data.split("#")
     search_raw = FRESH.get(key).replace("_", " ")
-    print(f"search_raw - {search_raw}")
     season_tag = season_tag.lower()
 
     if season_tag == "homepage":
@@ -597,7 +596,6 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
         search_final = " | ".join(query_input)
 
     search_final = " | ".join(query_input)
-    print(f"search_final - {search_final}")
     BUTTONS[key] = search_raw
 
     try:
