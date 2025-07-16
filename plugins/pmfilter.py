@@ -596,7 +596,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
         search_final = " | ".join(query_input)
 
     search_final = " | ".join(query_input)
-    BUTTONS[key] = search_final
+    BUTTONS[key] = search_raw
 
     try:
         if int(query.from_user.id) not in [query.message.reply_to_message.from_user.id, 0]:
@@ -670,7 +670,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
         )
         remaining_seconds = f"{time_difference.total_seconds():.2f}"
         total_results = len(files)
-        caption = await get_cap(settings, remaining_seconds, files, query, total_results, search_final)
+        caption = await get_cap(settings, remaining_seconds, files, query, total_results, search_raw)
 
         try:
             await query.message.edit_text(
