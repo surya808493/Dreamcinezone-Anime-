@@ -4,10 +4,6 @@
 
 <h1 align="center">𝓓𝓻𝓮𝓪𝓶𝔁𝓑𝓸𝓽𝔃</h1>
 
-<p align="center">
-  <b>Powerful Telegram File Indexing & Media Management Bot</b>
-</p>
-
 ---
 
 ## 👤 Owner
