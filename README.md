@@ -32,9 +32,8 @@ Try the live bot here:
 
 - ✅ Spell Check Toggle (Group Only)
 - ✅ Group Owners Can Manage Settings via Bot PM
-- ✅ `/reload` Command Added
 - ✅ Reset All Group Settings (Owner Only)
-- ✅ Triple Verification System
+- ✅ 3 Verification System
 
 ---
 
@@ -57,7 +56,7 @@ Join our support group for assistance:
 ## 🌟 Features
 
 - ✅ Stream Mode Toggle  
-- ✅ Triple User Verification  
+- ✅ 3 User Verification  
 - ✅ Multi FSub Admin & Group Support  
 - ✅ Auto Movie Info Updates  
 - ✅ PM Search Toggle  
@@ -68,7 +67,6 @@ Join our support group for assistance:
 - ✅ Verified User Database Save  
 - ✅ Superfast User Broadcast  
 - ✅ Refer & Earn Premium  
-- ✅ Instagram Video Downloader  
 - ✅ Top Searching  
 - ✅ Best Streaming Website Integration  
 - ✅ Premium Membership Management  
@@ -77,10 +75,8 @@ Join our support group for assistance:
 - ✅ PreDVD & CamRip Auto Deletion  
 - ✅ Multiple File Deletion  
 - ✅ Settings Menu  
-- ✅ Force Subscription  
 - ✅ Welcome Message  
-- ✅ Auto File Filtering  
-- ✅ Double Filter Button  
+- ✅ Auto File Filtering    
 - ✅ Single Filter Button  
 - ✅ Bot PM File Send Mode  
 - ✅ Auto File Send  
@@ -89,12 +85,10 @@ Join our support group for assistance:
 - ✅ Admin Commands  
 - ✅ Group Broadcast  
 - ✅ Full File Indexing Support  
-- ✅ Random Posters  
 - ✅ ID & User Info  
 - ✅ Stats & Analytics  
 - ✅ User Ban/Unban  
 - ✅ Chat Leave/Disable  
-- ✅ File Store  
 - ✅ Auto Delete Old Files  
 - ✅ …and more!
 
