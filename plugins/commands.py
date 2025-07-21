@@ -1239,7 +1239,7 @@ async def reset_group_callback(client, callback_query):
         'tutorial_2': TUTORIAL_2,
         'tutorial_3': TUTORIAL_3,
         'caption': CUSTOM_FILE_CAPTION,
-        'log': LOG_VR_CHANNEL,
+        'log': LOG_CHANNEL,
         'is_verify': IS_VERIFY,
         'fsub': AUTH_CHANNELS,
     }
