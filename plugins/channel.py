@@ -11,8 +11,6 @@ from utils import temp
 from pymongo.errors import PyMongoError
 
 logger = logging.getLogger(__name__)
-
-
 CAPTION_LANGUAGES = {
     "hin": "Hindi", "hindi": "Hindi",
     "tam": "Tamil", "tamil": "Tamil",
@@ -24,8 +22,11 @@ CAPTION_LANGUAGES = {
     "ben": "Bengali", "bengali": "Bengali",
     "mar": "Marathi", "marathi": "Marathi",
     "guj": "Gujarati", "gujarati": "Gujarati",
-    "urd": "Urdu", "urdu": "Urdu"
+    "urd": "Urdu", "urdu": "Urdu",
+    "kor": "Korean", "korean": "Korean",
+    "jpn": "Japanese", "japanese": "Japanese",
 }
+
 
 OTT_PLATFORMS = {
     "nf": "Netflix", "netflix": "Netflix",
@@ -119,8 +120,8 @@ def extract_media_info(filename: str, caption: str):
 
     lang_keys = {
         k for k in CAPTION_LANGUAGES if k in caption_clean or k in filename.lower()}
-    language = ", ".join(CAPTION_LANGUAGES[k]
-                         for k in lang_keys) if lang_keys else "N/A"
+    language = ", ".join(sorted(set(CAPTION_LANGUAGES[k] for k in lang_keys))) if lang_keys else "N/A"
+
 
     if series_match := SERIES_PATTERN.search(unified):
         season, episode = series_match.groups()
