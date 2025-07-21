@@ -178,7 +178,6 @@ async def get_poster(query, bulk=False, id=False, file=None):
         query = (query.strip()).lower()
         title = query
         year = re.findall(r'[1-2]\d{3}$', query, re.IGNORECASE)
-        imdb
         if year:
             year = list_to_str(year[:1])
             title = (query.replace(year, "")).strip()
