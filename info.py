@@ -164,8 +164,8 @@ STREAM_MODE = bool(environ.get('STREAM_MODE', False)) # Set Stream mode True or 
 AUTH_REQ_CHANNEL = int(auth_req_channel) if auth_req_channel and id_pattern.search(auth_req_channel) else None
 REQST_CHANNEL = int(reqst_channel) if reqst_channel and id_pattern.search(reqst_channel) else None
 SUPPORT_CHAT_ID = int(support_chat_id) if support_chat_id and id_pattern.search(support_chat_id) else None
-LANGUAGES = ["malayalam", "", "tamil", "", "english", "", "hindi", "", "telugu", "", "kannada", "", "gujarati", "", "marathi", "", "punjabi", ""]
-QUALITIES = ["360P", "", "480P", "", "720P", "", "1080P", "", "1440P", "", "2160P", ""]
+LANGUAGES = {"ᴍᴀʟᴀʏᴀʟᴀᴍ":"mal","ᴛᴀᴍɪʟ":"tam","ᴇɴɢʟɪsʜ":"eng","ʜɪɴᴅɪ":"hin","ᴛᴇʟᴜɢᴜ":"tel","ᴋᴀɴɴᴀᴅᴀ":"kan","ɢᴜᴊᴀʀᴀᴛɪ":"guj","ᴍᴀʀᴀᴛʜɪ":"mar","ᴘᴜɴᴊᴀʙɪ":"pun"}
+QUALITIES = ["360P", "480P", "720P", "1080P", "1440P", "2160P"]
 
 SEASON_COUNT = 12
 SEASONS = [f"S{str(i).zfill(2)}" for i in range(1, SEASON_COUNT + 1)]
@@ -184,6 +184,7 @@ BAD_WORDS = {
     "hdhub4u",
     "mkvcinemas",
     "primefix",
+    "join",
 } # Set of bad words to filter out
    
 
