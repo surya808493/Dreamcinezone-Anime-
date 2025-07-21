@@ -170,6 +170,7 @@ async def add_name_to_db(filename):
     """
     Helper function to add a filename to the database.
     """
+    
     return await db.add_name(filename) 
 
 async def get_poster(query, bulk=False, id=False, file=None):
@@ -177,6 +178,7 @@ async def get_poster(query, bulk=False, id=False, file=None):
         query = (query.strip()).lower()
         title = query
         year = re.findall(r'[1-2]\d{3}$', query, re.IGNORECASE)
+        imdb
         if year:
             year = list_to_str(year[:1])
             title = (query.replace(year, "")).strip()
@@ -773,4 +775,3 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
     except Exception as e:
         logging.error(f"Error in get_cap: {e}")
         pass
-       
