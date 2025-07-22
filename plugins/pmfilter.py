@@ -1891,14 +1891,8 @@ async def auto_filter(client, msg, spoll=False):
                     await ai_sts.delete()
                     return await advantage_spell_chok(client, message)
                 else:
-                    d = await m.edit('🚫 ɴᴏ ꜰɪʟᴇꜱ ᴡᴇʀᴇ ꜰᴏᴜɴᴅ ꜰᴏʀ ʏᴏᴜʀ ǫᴜᴇʀʏ.')
-                    await asyncio.sleep(10)
-                    await d.delete()
-                    try:
-                        await message.delete()
-                    except:
-                        pass
-                    return
+                    await m.delete()
+                    return await advantage_spell_chok(client, message)
         else:
             return
     else:
