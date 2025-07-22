@@ -197,8 +197,8 @@ async def get_search_results(
     if MULTIPLE_DB:
         total_results += await Media2.count_documents(filter_mongo)
 
-    if max_results % 2:
-        max_results += 1
+    # if max_results % 2:
+    #     max_results += 1
 
     cursor1 = (
         Media.find(filter_mongo).sort("$natural", -1).skip(offset).limit(max_results)
