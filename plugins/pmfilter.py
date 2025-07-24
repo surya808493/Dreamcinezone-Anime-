@@ -1496,7 +1496,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(f"⚠️ SOMETHING WENT WRONG STREAM LINK  \n\n{e}", show_alert=True)
             return
         
-   elif query.data == "prestream":
+    elif query.data == "prestream":
         await query.answer(text=script.PRE_STREAM_ALERT, show_alert=True)
         dreamcinezone = await query.message.reply_text(
             text=script.PRE_STREAM,
@@ -1604,10 +1604,11 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 await db.give_free_trial(user_id)
                 await query.answer("✅ Trial activated!", show_alert=True)
                 await query.message.reply_text(
-                    text="<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ !\n\n ɴᴇᴇᴅ ᴘʀᴇᴍɪᴜᴍ 👉🏻 /plan</b>",
+                    text="<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ ! </b>",
                     quote=False,
-                    disable_web_page_preview=True                 
-                    )
+                    disable_web_page_preview=True,
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")]])
+                )
                 return    
         except Exception as e:
             print(e)
