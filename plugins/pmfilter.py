@@ -1496,11 +1496,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(f"⚠️ SOMETHING WENT WRONG STREAM LINK  \n\n{e}", show_alert=True)
             return
         
-    elif query.data == "prestream":
+   elif query.data == "prestream":
         await query.answer(text=script.PRE_STREAM_ALERT, show_alert=True)
         dreamcinezone = await query.message.reply_text(
             text=script.PRE_STREAM,
             quote=True,
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")]])
         )
         await asyncio.sleep(DELETE_TIME)
         await dreamcinezone.delete()
