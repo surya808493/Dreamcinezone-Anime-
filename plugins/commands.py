@@ -18,7 +18,7 @@ from pyrogram.types import *
 from database.ia_filterdb import Media, Media2, get_file_details, unpack_new_file_id, get_bad_files
 from database.users_chats_db import db
 from info import *
-from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename
+from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename,save_default_settings
 import traceback
 
 
@@ -33,7 +33,7 @@ async def start(client, message):
     if EMOJI_MODE:
         try:
             await message.react(emoji=random.choice(REACTIONS), big=True)
-        except:
+        except Exception:
             await message.react(emoji="⚡️", big=True)
     m = message
     if len(m.command) == 2 and m.command[1].startswith(('notcopy', 'sendall')):
@@ -43,8 +43,8 @@ async def start(client, message):
         settings = await get_settings(grp_id)         
         verify_id_info = await db.get_verify_id_info(user_id, verify_id)
         if not verify_id_info or verify_id_info["verified"]:
-            await message.reply("<b>ʟɪɴᴋ ᴇxᴘɪʀᴇᴅ ᴛʀʏ ᴀɢᴀɪɴ...</b>")
-            return  
+            return await message.reply("<b>ʟɪɴᴋ ᴇxᴘɪʀᴇᴅ ᴛʀʏ ᴀɢᴀɪɴ...</b>")  
+        
         ist_timezone = pytz.timezone('Asia/Kolkata')
         if await db.user_verified(user_id):
             key = "third_time_verified"
@@ -1375,15 +1375,56 @@ async def set_fsub(client, message):
         err_text = f"⚠️ Error in set_fSub :\n{e}"
         await client.send_message(LOG_API_CHANNEL, err_text)
 
-# @Client.on_message(filters.private & filters.command("resetall") & filters.user(ADMINS))
-# async def reset_all_settings(client, message):
-#     try:
-#         reset_count = await db.dreamx_reset_settings()
-#         await message.reply(
-#             f"<b>ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ꜱᴇᴛᴛɪɴɢꜱ ꜰᴏʀ {reset_count} ɢʀᴏᴜᴘꜱ. ᴅᴇꜰᴀᴜʟᴛ ᴠᴀʟᴜᴇꜱ ᴡɪʟʟ ʙᴇ ᴜꜱᴇᴅ ✅</b>",
-#             quote=True
-#         )
-#     except Exception as e:
-#         print(f"Error processing reset all settings command: {str(e)}")
-#         await message.reply("<b>ᴇʀʀᴏʀ 🚫.oᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴅᴇʟᴇᴛɪɴɢ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ! ᴘʟᴇᴀꜱᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ.</b>", quote=True)
-        
+
+
+@Client.on_message(filters.private & filters.command("resetallgroup") & filters.user(ADMINS))
+async def reset_all_settings(client, message):
+    try:
+        reset_count = await db.dreamx_reset_settings()
+        await message.reply_text(
+            f"<b>ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ꜱᴇᴛᴛɪɴɢꜱ ꜰᴏʀ  <code>{reset_count}</code> ɢʀᴏᴜᴘꜱ. ᴅᴇꜰᴀᴜʟᴛ ᴠᴀʟᴜᴇꜱ ᴡɪʟʟ ʙᴇ ᴜꜱᴇᴅ ✅</b>",
+            quote=True
+        )
+    except Exception as e:
+        print(f"[ERROR] reset_all_settings: {e}")
+        await message.reply_text(
+            "<b>🚫 An error occurred while resetting group settings.\nPlease try again later.</b>",
+            quote=True
+        )
+
+@Client.on_message(filters.command("reset_group"))
+async def reset_group_command(client, message):
+    grp_id = message.chat.id
+    if message.chat.type not in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
+        return await message.reply_text("<b>⚠️ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ ᴄᴀɴ ᴏɴʟʏ ʙᴇ ᴜꜱᴇᴅ ɪɴ ɢʀᴏᴜᴘꜱ</b>")
+    is_admin = await is_check_admin(client, grp_id, message.from_user.id)
+    if not is_admin:
+        return await message.reply_text("<b>🚫 ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀɴ ᴀᴅᴍɪɴ ɪɴ ᴛʜɪꜱ ɢʀᴏᴜᴘ</b>")
+    sts = await message.reply("<b>♻️ ᴘʀᴏᴄᴇꜱꜱɪɴɢ ʀᴇꜱᴇᴛ...</b>")
+    await asyncio.sleep(1.2)
+    await sts.delete()
+    await save_default_settings(grp_id)
+    btn = [[InlineKeyboardButton("🚫 ᴄʟᴏꜱᴇ", callback_data="close_data")]]
+    reply_markup = InlineKeyboardMarkup(btn)
+    await message.reply_text(
+        "<b>✅ ꜱᴜᴄᴄᴇꜱꜱғᴜʟʟʏ ʀᴇꜱᴇᴛ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ</b>",
+        reply_markup=reply_markup
+    )
+
+@Client.on_message(filters.command("trial_reset"))
+async def reset_trial(client, message):
+    user_id = message.from_user.id
+    if user_id not in ADMINS:
+        await message.reply("ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀɴʏ ᴘᴇʀᴍɪꜱꜱɪᴏɴ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ.")
+        return
+    try:
+        if len(message.command) > 1:
+            target_user_id = int(message.command[1])
+            updated_count = await db.reset_free_trial(target_user_id)
+            message_text = f"ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ʀᴇꜱᴇᴛ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ ᴜꜱᴇʀꜱ {target_user_id}." if updated_count else f"ᴜꜱᴇʀ {target_user_id} ɴᴏᴛ ꜰᴏᴜɴᴅ ᴏʀ ᴅᴏɴ'ᴛ ᴄʟᴀɪᴍ ꜰʀᴇᴇ ᴛʀᴀɪʟ ʏᴇᴛ."
+        else:
+            updated_count = await db.reset_free_trial()
+            message_text = f"ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ʀᴇꜱᴇᴛ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ {updated_count} ᴜꜱᴇʀꜱ."
+        await message.reply_text(message_text)
+    except Exception as e:
+        await message.reply_text(f"An error occurred: {e}")
