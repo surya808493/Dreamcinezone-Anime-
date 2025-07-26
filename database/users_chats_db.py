@@ -31,13 +31,21 @@ class Database:
         await self.movie_updates.delete_many({})
         print("All filenames notification have been deleted.")
         return True
-
  
-    async def find_join_req(self, id):
-        return bool(await self.req.find_one({'id': id})) 
      
-    async def add_join_req(self, id):
-        await self.req.insert_one({'id': id})
+    async def add_join_req(self, user_id: int, channel_id: int): #update
+        await self.req.update_one(
+            {'user_id': user_id},
+            {
+                '$addToSet': {'channels': channel_id},
+                '$setOnInsert': {'created_at': datetime.datetime.utcnow()}
+            },
+            upsert=True
+        )
+        
+    async def has_joined_channel(self, user_id: int, channel_id: int):
+        doc = await self.req.find_one({'user_id': user_id})
+        return doc and 'channels' in doc and channel_id in doc['channels']
 
     async def del_join_req(self):
         await self.req.drop()
@@ -158,7 +166,8 @@ class Database:
             'verify_time': TWO_VERIFY_GAP,
             'third_verify_time': THREE_VERIFY_GAP,
             'caption': CUSTOM_FILE_CAPTION,
-            'fsub': AUTH_CHANNELS
+            'fsub': AUTH_CHANNELS,
+            'reqfsub': AUTH_REQ_CHANNELS
         }
         chat = await self.grp.find_one({'id':int(id)})
         if chat and 'settings' in chat:

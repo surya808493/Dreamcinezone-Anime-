@@ -6,7 +6,7 @@ from urllib.parse import quote_plus
 import logging
 from database.ia_filterdb import Media, Media2, get_file_details, get_search_results, get_bad_files
 from database.config_db import mdb
-from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid, ChatAdminRequired
+from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid, ChatAdminRequired, UserNotParticipant
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, WebAppInfo
 from info import *
@@ -888,24 +888,20 @@ async def cb_handler(client: Client, query: CallbackQuery):
         try:
             ident, kk, file_id = query.data.split("#")
             settings = await get_settings(query.message.chat.id)
-            fsub_channels = settings.get(
-                'fsub', AUTH_CHANNELS) if settings else AUTH_CHANNELS
+
+            # ⬇️ Load fsub channels from settings or fallback
+            fsub_channels = settings.get('fsub', AUTH_CHANNELS) if settings else AUTH_CHANNELS
+
             btn = []
-            dreamxbotz_btn = await is_subscribed(client, query, fsub_channels)
-            if dreamxbotz_btn:
-                btn.extend(dreamxbotz_btn)
-            dreamxbotz_joined = await is_req_subscribed(client, query)
-            if not dreamxbotz_joined:
-                try:
-                    invite_link_default = await client.create_chat_invite_link(int(AUTH_REQ_CHANNEL), creates_join_request=True)
-                except ChatAdminRequired:
-                    print("Bot Ko AUTH_REQ_CHANNEL Per Admin Bana Bhai Pahile 🤧")
-                    return
-                btn.append([InlineKeyboardButton("⛔️ ᴊᴏɪɴ ɴᴏᴡ ⛔️",
-                           url=invite_link_default.invite_link)])
+
+            # 1️⃣ Optional force-sub channels
+            btn += await is_subscribed(client, query.from_user.id, fsub_channels)
+
+            req_fsub_channels = settings.get('reqfsub', AUTH_REQ_CHANNELS) if settings else AUTH_REQ_CHANNELS
+            btn += await is_req_subscribed(client, query.from_user.id, req_fsub_channels)
+            
             if btn:
-                btn.append([InlineKeyboardButton("♻️ ᴛʀʏ ᴀɢᴀɪɴ ♻️",
-                           callback_data=f"checksub#{kk}#{file_id}")])
+                btn.append([InlineKeyboardButton("♻️ ᴛʀʏ ᴀɢᴀɪɴ ♻️", callback_data=f"checksub#{kk}#{file_id}")])
                 try:
                     await query.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(btn))
                 except MessageNotModified:
@@ -913,12 +909,19 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 await query.answer(
                     f"👋 Hello {query.from_user.first_name},\n\n"
                     "Yᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ᴊᴏɪɴᴇᴅ ᴀʟʟ ʀᴇǫᴜɪʀᴇᴅ ᴜᴘᴅᴀᴛᴇ Cʜᴀɴɴᴇʟs.\n"
-                    "Pʟᴇᴀsᴇ ᴊᴏɪɴ ᴇᴀᴄʜ ᴄʜᴀɴɴᴇʟ ʟɪsᴛᴇᴅ ʙᴇʟᴏᴡ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n\n", show_alert=True)
+                    "Pʟᴇᴀsᴇ ᴊᴏɪɴ ᴇᴀᴄʜ ᴏɴᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ.\n",
+                    show_alert=True
+                )
                 return
+
+            # 5️⃣ Success — user is subscribed to all
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
             await query.message.delete()
+
         except Exception as e:
-            await log_error(client, f"checksub callback.\n\n Error - {e}")
+            await log_error(client, f"❌ Error in checksub callback:\n\n{repr(e)}")
+            logger.error(f"❌ Error in checksub callback:\n\n{repr(e)}")
+
 
     elif query.data.startswith("killfilesdq"):
         ident, keyword = query.data.split("#")

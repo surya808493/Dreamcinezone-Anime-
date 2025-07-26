@@ -43,7 +43,7 @@ async def save_group(bot, message):
             text=f"<b>Thankyou For Adding Me In {message.chat.title} ❣️\n\nIf you have any questions & doubts about using me contact support.</b>",
             reply_markup=reply_markup)
         try:
-            await db.connect_group(message.chat.id, message.from_user)
+            await db.connect_group(message.chat.id, message.from_user.id)
         except Exception as e:
             logging.error(f"DB error connecting group: {e}")
     else:
