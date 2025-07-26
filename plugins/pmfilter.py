@@ -124,11 +124,14 @@ async def refercall(bot, query):
         InlineKeyboardButton('Back', callback_data='premium_info')
     ]]
     reply_markup = InlineKeyboardMarkup(btn)
-    await bot.edit_message_media(
-        query.message.chat.id,
-        query.message.id,
-        InputMediaPhoto("https://graph.org/file/1a2e64aee3d4d10edd930.jpg")
-    )
+    try:
+        await bot.edit_message_media(
+            query.message.chat.id,
+            query.message.id,
+            InputMediaPhoto("https://graph.org/file/1a2e64aee3d4d10edd930.jpg")
+        )
+    except Exception as e:    
+        pass
     await query.message.edit_text(
         text=f'Hay Your refer link:\n\nhttps://t.me/{bot.me.username}?start=reff_{query.from_user.id}\n\nShare this link with your friends, Each time they join,  you will get 10 refferal points and after 100 points you will get 1 month premium subscription.',
         reply_markup=reply_markup,
@@ -1495,16 +1498,19 @@ async def cb_handler(client: Client, query: CallbackQuery):
             print(e)
             await query.answer(f"⚠️ SOMETHING WENT WRONG STREAM LINK  \n\n{e}", show_alert=True)
             return
-        
     elif query.data == "prestream":
         await query.answer(text=script.PRE_STREAM_ALERT, show_alert=True)
-        dreamcinezone = await query.message.reply_text(
-            text=script.PRE_STREAM,
-            quote=True,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")]])
+        dreamcinezone = await client.send_photo(
+            chat_id=query.message.chat.id,
+            photo="https://github.com/DreamXBotz/Pics/blob/main/premium-expire.jpeg", 
+            caption=script.PRE_STREAM,
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")]
+            ])
         )
         await asyncio.sleep(DELETE_TIME)
         await dreamcinezone.delete()
+
 
     elif query.data == "pagesn1":
         await query.answer(text=script.PAGE_TXT, show_alert=True)
@@ -1533,11 +1539,14 @@ async def cb_handler(client: Client, query: CallbackQuery):
             gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
         else:
             gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
-        await client.edit_message_media(
-            query.message.chat.id, 
-            query.message.id, 
-            InputMediaPhoto(random.choice(PICS))
-        )
+        try:
+            await client.edit_message_media(
+                query.message.chat.id, 
+                query.message.id, 
+                InputMediaPhoto(random.choice(PICS))
+            )
+        except Exception as e:    
+            pass
         await query.message.edit_text(
             text=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
             reply_markup=reply_markup,
@@ -1591,27 +1600,43 @@ async def cb_handler(client: Client, query: CallbackQuery):
         await query.message.edit_text(
             text=script.ABOUT_TXT.format(temp.U_NAME, temp.B_NAME, OWNER_LNK),
             reply_markup=reply_markup,
+            disable_web_page_preview=True,
             parse_mode=enums.ParseMode.HTML
         )
+
     elif query.data == "give_trial":
         try:
             user_id = query.from_user.id
             has_free_trial = await db.check_trial_status(user_id)
             if has_free_trial:
-                await query.answer("🚸 ʏᴏᴜ'ᴠᴇ ᴀʟʀᴇᴀᴅʏ ᴄʟᴀɪᴍᴇᴅ ʏᴏᴜʀ ꜰʀᴇᴇ ᴛʀɪᴀʟ ᴏɴᴄᴇ !\n\n📌 ᴄʜᴇᴄᴋᴏᴜᴛ ᴏᴜʀ ᴘʟᴀɴꜱ ʙʏ : /plan", show_alert=True)
+                await query.answer(
+                    "🚸 ʏᴏᴜ'ᴠᴇ ᴀʟʀᴇᴀᴅʏ ᴄʟᴀɪᴍᴇᴅ ʏᴏᴜʀ ꜰʀᴇᴇ ᴛʀɪᴀʟ ᴏɴᴄᴇ !\n\n📌 ᴄʜᴇᴄᴋᴏᴜᴛ ᴏᴜʀ ᴘʟᴀɴꜱ ʙʏ : /plan",
+                    show_alert=True
+                )
                 return
             else:            
                 await db.give_free_trial(user_id)
                 await query.answer("✅ Trial activated!", show_alert=True)
-                await query.message.reply_text(
-                    text="<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ ! </b>",
-                    quote=False,
-                    disable_web_page_preview=True,
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")]])
+
+                msg = await client.send_photo(
+                    chat_id=query.message.chat.id,
+                    photo="https://github.com/DreamXBotz/Pics/blob/main/free-trial.jpeg", 
+                    caption=(
+                        "<b>🥳 ᴄᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴꜱ\n\n"
+                        "🎉 ʏᴏᴜ ᴄᴀɴ ᴜsᴇ ꜰʀᴇᴇ ᴛʀᴀɪʟ ꜰᴏʀ <u>5 ᴍɪɴᴜᴛᴇs</u> ꜰʀᴏᴍ ɴᴏᴡ !\n\n"
+                        "ɴᴇᴇᴅ ᴘʀᴇᴍɪᴜᴍ 👉🏻 /plan</b>"
+                    ),
+                    parse_mode=enums.ParseMode.HTML,
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton("🚀 Buy Premium 🚀", callback_data="premium_info")
+                    ]])
                 )
-                return    
+                await asyncio.sleep(DELETE_TIME)
+                return await msg.delete()
         except Exception as e:
-            print(e)
+            logging.exception("Error in give_trial callback")
+
+
 
     elif query.data == "source":
         buttons = [[
@@ -1658,6 +1683,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             )
         except Exception as e:
             logging.exception("Exception in 'premium_info' callback")
+
 
     elif query.data == "buy_info":
         try:
