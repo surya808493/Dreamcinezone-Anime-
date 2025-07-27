@@ -887,14 +887,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data.startswith("checksub"):
         try:
             ident, kk, file_id = query.data.split("#")
-            settings = await get_settings(query.message.chat.id)
-
-            # ⬇️ Load fsub channels from settings or fallback
+            chat = file_id.split("_")[0]
+            settings = await get_settings(chat)
             fsub_channels = settings.get('fsub', AUTH_CHANNELS) if settings else AUTH_CHANNELS
-
             btn = []
-
-            # 1️⃣ Optional force-sub channels
             btn += await is_subscribed(client, query.from_user.id, fsub_channels)
 
             req_fsub_channels = settings.get('reqfsub', AUTH_REQ_CHANNELS) if settings else AUTH_REQ_CHANNELS
@@ -913,8 +909,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     show_alert=True
                 )
                 return
-
-            # 5️⃣ Success — user is subscribed to all
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
             await query.message.delete()
 
