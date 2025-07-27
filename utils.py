@@ -49,31 +49,52 @@ class temp(object):
     VERIFICATIONS = {}
     TEMP_INVITE_LINKS = {}
 
-async def is_req_subscribed(bot, query):
-    if await db.find_join_req(query.from_user.id):
-        return True
-    try:
-        user = await bot.get_chat_member(AUTH_REQ_CHANNEL, query.from_user.id)
-        if user.status != enums.ChatMemberStatus.BANNED:
-            return True
-    except UserNotParticipant:
-        return False
-    except Exception as e:
-        logger.exception("Subscription check error: %s", e)
-        return False
-    return False
+async def is_req_subscribed(bot, user_id, rqfsub_channels):
+    btn = []
+    for ch_id in rqfsub_channels:
+        if await db.has_joined_channel(user_id, ch_id):
+            continue
+        try:
+            member = await bot.get_chat_member(ch_id, user_id)
+            if member.status != enums.ChatMemberStatus.BANNED:
+                await db.add_join_req(user_id, ch_id)
+                continue
+        except UserNotParticipant:
+            pass
+        except Exception as e:
+            logger.error(f"Error checking membership in {ch_id}: {e}")
 
-async def is_subscribed(bot, query, fsub_channels):
+        try:
+            chat   = await bot.get_chat(ch_id)
+            invite = await bot.create_chat_invite_link(
+                ch_id,
+                creates_join_request=True
+            )
+            btn.append([InlineKeyboardButton(f"⛔️ Join {chat.title}", url=invite.invite_link)])
+        except ChatAdminRequired:
+            logger.warning(f"Bot not admin in {ch_id}")
+        except Exception as e:
+            logger.warning(f"Invite link error for {ch_id}: {e}")
+            
+    return btn
+
+
+
+
+async def is_subscribed(bot, user_id, fsub_channels):
     btn = []
     for channel_id in fsub_channels:
         try:
             chat = await bot.get_chat(int(channel_id))
-            await bot.get_chat_member(channel_id, query.from_user.id)
+            await bot.get_chat_member(channel_id, user_id)
         except UserNotParticipant:
-            btn.append([InlineKeyboardButton(f'❤️ {chat.title}', url=chat.invite_link)])
+            try:
+                invite = await bot.create_chat_invite_link(channel_id, creates_join_request=False)
+                btn.append([InlineKeyboardButton(f"📢 Join {chat.title}", url=invite.invite_link)])
+            except Exception as e:
+                logger.warning(f"Failed to create invite for {channel_id}: {e}")
         except Exception as e:
-            logger.exception("is_subscription check error: %s", e)
-            pass
+            logger.exception(f"is_subscribed error for {channel_id}: {e}")
     return btn
 
 
@@ -358,6 +379,7 @@ def generate_settings_text(settings, title, reset_done=False):
 
 📝 <b>ʟᴏɢ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{settings.get("log", "N/A")}</code>
 🚫 <b>ꜰꜱᴜʙ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{settings.get("fsub", "N/A")}</code>
+🚫 <b>ʀᴇǫ ғꜱᴜʙ ᴄʜᴀɴɴᴇʟ ɪᴅ</b> - <code>{settings.get("reqfsub", "N/A")}</code> #update
 
 🎯 <b>ɪᴍᴅʙ ᴛᴇᴍᴘʟᴀᴛᴇ</b> - <code>{settings.get("template", "N/A")}</code>
 
