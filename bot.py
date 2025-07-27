@@ -38,7 +38,7 @@ files = glob.glob(ppath)
 
 async def dreamxbotz_start():
     print('\n')
-    print('\nInitalizing DreamxBotz')
+    print('\nInitalizing Noobflix')
     await dreamxbotz.start()
     bot_info = await dreamxbotz.get_me()
     dreamxbotz.username = bot_info.username
@@ -53,7 +53,7 @@ async def dreamxbotz_start():
             load = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(load)
             sys.modules["plugins." + plugin_name] = load
-            print("DreamxBotz Imported => " + plugin_name)
+            print("Noobflix Imported => " + plugin_name)
     if ON_HEROKU:
         asyncio.create_task(ping_server()) 
     b_users, b_chats = await db.get_banned()
@@ -71,7 +71,7 @@ async def dreamxbotz_start():
     temp.B_NAME = me.first_name
     temp.B_LINK = me.mention
     dreamxbotz.username = '@' + me.username
-    dreamxbotz.loop.create_task(check_expired_premium(dreamxbotz))
+    dreamxbotz.loop.create_task(check_expired_premium(Noobflix))
     logging.info(f"{me.first_name} with Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
     logging.info(LOG_STR)
     logging.info(script.LOGO)
