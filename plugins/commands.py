@@ -230,12 +230,13 @@ async def start(client, message):
     if not await db.has_premium_access(message.from_user.id):
         btn = []
         try:
+            chat = int(data.split("_", 2)[1])
             if AUTH_CHANNELS:
-                settings      = await get_settings(message.chat.id)
+                settings      = await get_settings(chat)
                 fsub_channels = settings.get("fsub", AUTH_CHANNELS) if settings else AUTH_CHANNELS
                 btn += await is_subscribed(client, message.from_user.id, fsub_channels)
             if AUTH_REQ_CHANNELS:
-                settings        = await get_settings(message.chat.id)
+                settings        = await get_settings(chat)
                 rqfsub_channels = settings.get("reqfsub", AUTH_REQ_CHANNELS) if settings else AUTH_REQ_CHANNELS
                 btn += await is_req_subscribed(client, message.from_user.id, rqfsub_channels)
             if btn:
