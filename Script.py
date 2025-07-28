@@ -237,7 +237,7 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
 </b>
 
 
-🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
+<blockquote>〽️ Powered by @Noobflix_Filter_Bot</b></blockquote>
 """
 
 
