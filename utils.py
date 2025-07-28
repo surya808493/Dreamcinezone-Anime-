@@ -723,7 +723,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"<b>{idx}. "
                             f"<a href='https://telegram.me/{temp.U_NAME}"
                             f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
+                            f"📕 {get_size(file.file_size)} | "
                             f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
@@ -767,7 +767,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"<b>{idx}. "
                             f"<a href='https://telegram.me/{temp.U_NAME}"
                             f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
+                            f"📕 {get_size(file.file_size)} | "
                             f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
@@ -785,7 +785,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"<b>{idx}. "
                             f"<a href='https://telegram.me/{temp.U_NAME}"
                             f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
+                            f"📕 {get_size(file.file_size)} | "
                             f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
@@ -803,7 +803,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"<b>{idx}. "
                             f"<a href='https://telegram.me/{temp.U_NAME}"
                             f"?start=file_{query.message.chat.id}_{file.file_id}'>"
-                            f"[{get_size(file.file_size)}] "
+                            f"📕 {get_size(file.file_size)} | "
                             f"{clean_filename(file.file_name)}\n\n"
                             f"</a></b>"
                         )
