@@ -304,7 +304,7 @@ async def send_movie_update(bot, base_name):
             text = generate_movie_message(movie_doc, base_name)
             buttons = InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    'ɢᴇᴛ ғɪʟᴇs',
+                    '♻️ 𝗚𝗲𝘁 𝗙𝗶𝗹𝗲𝘀 ♻️',
                     url=f"https://t.me/{temp.U_NAME}?start=getfile-{base_name.replace(' ', '-')}"
                 )
             ]])
