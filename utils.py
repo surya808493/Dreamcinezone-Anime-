@@ -717,7 +717,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
             IMDB_CAP = temp.IMDB_CAP.get(query.from_user.id)
             if IMDB_CAP:
                 cap = IMDB_CAP
-                cap += "\n\n♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
+                cap += "\n\n<b>♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
                 for idx, file in enumerate(files, start=offset + 1):
                         cap += (
                             f"<b>{idx}. "
@@ -779,7 +779,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                         f"🙋‍♂ Hᴇʏ : {query.from_user.mention}\n"
                         f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ :⚡ {query.message.chat.title}\n</b>"
                     )
-                    cap += "\n\n♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
+                    cap += "\n\n<b>♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
                     for idx, file in enumerate(files, start=offset + 1):
                         cap += (
                             f"<b>{idx}. "
@@ -797,7 +797,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 f"🙋‍♂ Hᴇʏ : {query.from_user.mention}\n"
                 f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {query.message.chat.title or temp.B_LINK or '@Noobflix_Filter_Bot'}\n</b>"
             )
-            cap += "\n\n♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
+            cap += "\n\n<b>♻️ ʀᴇꜱᴜʟᴛꜱ ꜰᴏʀ ʏᴏᴜʀ sᴇᴀʀᴄʜ 👇\n\n</b>"
             for idx, file in enumerate(files, start=offset):
                         cap += (
                             f"<b>{idx}. "
