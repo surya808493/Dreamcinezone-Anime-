@@ -216,7 +216,7 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """@Deendayal_Hindi_Movies.<blockquote><a href="https://t.me//Deendayal_Hindi_Movies"><b>@Noobflix_Filter_Bot {file_name}</b></a></blockquote>
+    CAPTION = """<blockquote><a href="https://t.me//Deendayal_Hindi_Movies"><b>{file_name}</b></a></blockquote>
 
 <b>⚙️ sɪᴢᴇ : {file_size}</b>
 
