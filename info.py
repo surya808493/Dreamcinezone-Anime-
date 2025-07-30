@@ -188,6 +188,7 @@ BAD_WORDS = {
     "primefix",
     "join",
     "CineVood",
+    "HDHub4u",
 } # Set of bad words to filter out
    
 
