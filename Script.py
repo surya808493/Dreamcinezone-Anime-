@@ -232,7 +232,7 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
 🎞️ ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
 🔊 ᴀᴜᴅɪᴏ    : <b>{language}</b>
 🌟 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
-📺 ᴇᴘɪsᴏᴅᴇs : <b>{episodes}</b>
+<b>{episodes}</b>
 </b>
 <blockquote>〽️ Powered by @Noobflix_Filter_Bot</b></blockquote>
 """
