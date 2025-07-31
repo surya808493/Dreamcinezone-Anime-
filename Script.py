@@ -228,7 +228,7 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
 <blockquote><b>📥 𝖭𝖤𝖶 𝖥𝖨𝖫𝖤 𝖠𝖣𝖣𝖤𝖣 ✅</b></blockquote>
 <b>
 🫥  <b><code>{filename}</code> ⿻ </b> |<b><a href={poster_url}> ⭐ </a><a href={imdb_url}>ɪᴍᴅʙ ɪɴғᴏ</a></b>
-<blockquote><b>🚀 Telegram Files ✨</b></blockquote>
+                     𓂃˖˳·˖ ִֶָ ⋆🌷͙⋆ ִֶָ˖·˳˖𓂃 ִֶָ
 
 🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 🌐 ᴏᴛᴛ        : <b>{ott}</b>
@@ -237,7 +237,7 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
 🌟 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
 <b>{episodes}</b>
 </b>
-<blockquote>〽️ Powered by @Noobflix_Filter_Bot</b></blockquote>
+<blockquote><b>〽️ Powered by @Noobflix_Filter_Bot</b></blockquote>
 """
 
 
