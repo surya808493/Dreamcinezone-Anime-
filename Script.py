@@ -226,7 +226,7 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
     MOVIE_UPDATE_NOTIFY_TXT = """
 <blockquote><a</b><a href={poster_url}>📥</a><a href={imdb_url}>𝖭𝖤𝖶 𝖥𝖨𝖫𝖤 𝖠𝖣𝖣𝖤𝖣 ✅</a></b></blockquote>
 <b>
-🚧  ᴛɪᴛʟᴇ : <b>`{filename}`</b>
+🫥 <b>`{filename}` ⿻</b> |</b><a href={poster_url}>⭐ </a><a href={imdb_url}>ɪᴍᴅʙ ɪɴғᴏ</a></b>
 🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 🌐 ᴏᴛᴛ        : <b>{ott}</b>
 🎞️ ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
