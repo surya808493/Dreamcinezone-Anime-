@@ -224,7 +224,8 @@ Powered By ⚜️ :「 @Deendayal_Hindi_Movies」
 """
     
     MOVIE_UPDATE_NOTIFY_TXT = """
-<blockquote>📥 𝖭𝖤𝖶 𝖥𝖨𝖫𝖤 𝖠𝖣𝖣𝖤𝖣 ✅</b></blockquote>
+    </b><a href={poster_url}></a><a href={imdb_url}></a></b>
+<blockquote><b>📥 𝖭𝖤𝖶 𝖥𝖨𝖫𝖤 𝖠𝖣𝖣𝖤𝖣 ✅</b></blockquote>
 <b>
 🫥  <b><code>{filename}</code>  ⿻</b> |</b><a href={poster_url}> ⭐ </a><a href={imdb_url}>ɪᴍᴅʙ ɪɴғᴏ</a></b>
 <blockquote>🚀 Telegram Files ✨</blockquote>
