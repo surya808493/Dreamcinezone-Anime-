@@ -457,7 +457,7 @@ def generate_movie_message(movie_doc, base_name):
                 collapsed.append(str(start) if start == end else f"{start}-{end}")
 
             all_ep_parts = collapsed + sorted(ranges, key=lambda s: int(s.split("-")[0]))
-            episode_lines.append(f"S{int(season)}: {', '.join(all_ep_parts)}")
+            episode_lines.append(f"S{int(season)}: E{', '.join(all_ep_parts)}")
 
         epi_str = "\n".join(episode_lines)
         if epi_str:
