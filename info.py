@@ -33,7 +33,7 @@ INDEX_CAPTION = bool(environ.get('SAVE_CAPTION', True)) # Save caption db when i
 
 PICS = (environ.get('PICS', 'https://i.ibb.co/xSkDRjHq/photo-2025-07-29-17-39-25-7532559990716891152.jpg https://i.ibb.co/mCZCHWxV/photo-2025-07-29-17-39-25-7532560141040746512.jpg https://i.ibb.co/jPGFLqMg/photo-2025-07-29-17-35-36-7532558929859969040.jpg https://i.ibb.co/ynTrzH9Y/photo-2025-07-29-17-35-33-7532558912680099856.jpg')).split()  # Sample pic
 NOR_IMG = environ.get("NOR_IMG", "https://graph.org/file/e20b5fdaf217252964202.jpg")
-MELCOW_PHOTO = environ.get("MELCOW_PHOTO", "https://envs.sh/SRY.jpg")
+MELCOW_PHOTO = environ.get("MELCOW_PHOTO", "https://i.ibb.co/MytnWNMS/photo-2025-08-02-21-07-35-7534097881066635304.jpg")
 SPELL_IMG = environ.get("SPELL_IMG", "https://graph.org/file/13702ae26fb05df52667c.jpg")
 SUBSCRIPTION = (environ.get('SUBSCRIPTION', 'https://graph.org/file/242b7f1b52743938d81f1.jpg'))
 FSUB_PICS = (environ.get('FSUB_PICS', 'https://graph.org/file/7478ff3eac37f4329c3d8.jpg')).split()  # Fsub pic
