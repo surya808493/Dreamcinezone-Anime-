@@ -54,7 +54,7 @@ SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/Deendayal_Hindi_Movies'
 
 # FORCE_SUB 
 auth_req_channels = environ.get("AUTH_REQ_CHANNELS", "-1002765322004")# requst to join Channel for force sub (make sure bot is admin) only for bot ADMINS  
-auth_channels     = environ.get("AUTH_CHANNELS", "-1002695471786 -1002456267845 -1002568854373 -1002764794931")# Channels for force sub (make sure bot is admin)
+auth_channels     = environ.get("AUTH_CHANNELS", "-1002695471786 -1002456267845 -1002568854373")# Channels for force sub (make sure bot is admin)
 
 # ============================
 # Payment Configuration
