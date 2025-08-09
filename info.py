@@ -190,6 +190,7 @@ BAD_WORDS = {
     "CineVood",
     "HDHub4u",
     "HDHubu4u",
+    "4kHdHub Com",
 } # Set of bad words to filter out
    
 
