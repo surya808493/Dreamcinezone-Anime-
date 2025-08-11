@@ -304,8 +304,8 @@ async def send_movie_update(bot, base_name):
             text = generate_movie_message(movie_doc, base_name)
             buttons = InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    '♻️ 𝗚𝗲𝘁 𝗙𝗶𝗹𝗲𝘀 ♻️',
-                    url=f"https://t.me/{temp.U_NAME}?start=getfile-{base_name.replace(' ', '-')}"
+                    '♻️ 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 ♻️',
+                    url=f"https://t.me/Deendayal_Hindi_Movies?start=getfile-{base_name.replace(' ', '-')}"
                 )
             ]])
 
@@ -353,8 +353,8 @@ async def update_movie_message(bot, base_name):
         text = generate_movie_message(movie_doc, base_name)
         buttons = InlineKeyboardMarkup([[
             InlineKeyboardButton(
-                '♻️ 𝗚𝗲𝘁 𝗙𝗶𝗹𝗲𝘀 ♻️',
-                url=f"https://t.me/{temp.U_NAME}?start=getfile-{base_name.replace(' ', '-')}"
+                '♻️ 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 ♻️',
+                url=f"https://t.me/Deendayal_Hindi_Movies?start=getfile-{base_name.replace(' ', '-')}"
             )
         ]])
 
